@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { SpotifyService } from "../services/index";
+import  SpotifyService  from "../services/index";
 
 
 
@@ -16,7 +16,7 @@ class SpotifyController{
 
     static async callback(req: Request, res: Response){
         try {
-            const code = req.query.code;
+            const code = req.query.code as string;
             const token = await SpotifyService.exchangeCodeForToken(code);
             res.status(200).json({token});
         } catch (error) {
@@ -26,3 +26,5 @@ class SpotifyController{
 
 
 }
+
+export default SpotifyController;
