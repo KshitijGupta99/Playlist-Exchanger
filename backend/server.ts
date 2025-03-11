@@ -1,15 +1,20 @@
-import express, { Express, Request, Response } from "express";
-const app = express()
-const port = 3000;
+import express, { Application, Express, Request, Response } from "express";
+const app:Application = express()
+const port:Number = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('SErver is running...')
 })
 
-app.get('/api', (req, res) => {
-  res.send('Hello API! hi there everyone')
-})
+const v1routes = require('./src/routes/index');
+app.use('/v1', v1routes);
 
+// app.use((req, res, next) => {
+//   return InternalServerErrorResponse.send(
+//     res,
+//     'Route not found or does not exist!',
+//   );
+// });
 
 
 app.listen(port, () => {
