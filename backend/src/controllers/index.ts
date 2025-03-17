@@ -3,4 +3,4 @@ import YoutubeController from "./youtube.controller";
 
 const controllers = { SpotifyController, YoutubeController };
 
-export default controllers; 
+module.exports = controllers;

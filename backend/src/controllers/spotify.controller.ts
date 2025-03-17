@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 
-import {SpotifyService} from "../services/index";
+import SpotifyService from "../services/index";
 
 
 
 class SpotifyController{
+    SpotifyService: SpotifyService;
+    constructor() {
+        this.SpotifyService = new SpotifyService();
+    }
+
     static async login(req: Request, res: Response){
         try {
             const authUrl = SpotifyService.getAuthUrl();
@@ -23,8 +28,6 @@ class SpotifyController{
             res.status(500).json({error : "failed to get tokens, authenticatoin failed"});
         }
     }
-
-
 }
 
 export default SpotifyController;

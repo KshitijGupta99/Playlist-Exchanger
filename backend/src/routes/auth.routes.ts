@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
 
-import {SpotifyController, YoutubeController} from '../controllers/index';
+import {SpotifyController} from '../controllers';
+import {YoutubeController} from '../controllers';
 
 
 router.post('/spotify', SpotifyController );

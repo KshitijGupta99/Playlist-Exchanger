@@ -7,11 +7,16 @@ const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
 const port = 3000;
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('SErver is running...');
 });
-app.get('/api', (req, res) => {
-    res.send('Hello API! hi there everyone');
-});
+const v1routes = require('./src/routes/index');
+app.use('/v1', v1routes);
+// app.use((req, res, next) => {
+//   return InternalServerErrorResponse.send(
+//     res,
+//     'Route not found or does not exist!',
+//   );
+// });
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
