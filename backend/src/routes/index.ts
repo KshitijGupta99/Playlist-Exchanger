@@ -1,10 +1,10 @@
-import express from 'express';
-import authRoutes from './auth.routes';
+import express from "express";
+import authRoutes from "./auth.routes";
 // import playlistRoutes from './playlist.routes';
 
-const router = express.Router();
+const v1Routes = express.Router();
 
-router.use('/auth', authRoutes);
+v1Routes.use("/auth", authRoutes);
 // router.use('/playlist', playlistRoutes);
 
-export default router;
+export default v1Routes;

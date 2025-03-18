@@ -4,13 +4,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
-const port = 3000;
-app.get('/', (req, res) => {
-    res.send('SErver is running...');
+const port = 5000;
+app.get("/", (req, res) => {
+    res.send("SErver is running...");
 });
-const v1routes = require('./src/routes/index');
-app.use('/v1', v1routes);
+app.use((0, cors_1.default)({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+}));
+// const v1routes = require('./src/routes/index');
+const routes_1 = __importDefault(require("./src/routes"));
+app.use("/v1", routes_1.default);
 // app.use((req, res, next) => {
 //   return InternalServerErrorResponse.send(
 //     res,

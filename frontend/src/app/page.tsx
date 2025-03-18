@@ -1,10 +1,9 @@
+"use client"
 import { useSession } from "next-auth/react";
-import LoginButton from "../components/LoginButton";
-import LogoutButton from "../components/LogoutButton";
 import Image from "next/image";
 import Button from "@/components/Button";
 
-export default async function Home() {
+export default function Home() {
 
   return (
     <div>

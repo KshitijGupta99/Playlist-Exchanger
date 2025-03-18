@@ -1,10 +1,11 @@
 "use client";
 const Button = () => {
   const signIn = async () => {
-    const res = await fetch("/api/auth/spotify", {
+    const res = await fetch("http://localhost:5000/v1/auth/spotify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({ provider: "spotify" }),
     });

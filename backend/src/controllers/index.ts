@@ -1,6 +1,4 @@
 import SpotifyController from "./spotify.controller";
 import YoutubeController from "./youtube.controller";
 
-const controllers = { SpotifyController, YoutubeController };
-
-module.exports = controllers;
+export { SpotifyController, YoutubeController };

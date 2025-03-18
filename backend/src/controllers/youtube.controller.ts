@@ -1,5 +1,3 @@
-class YoutubeController{
-
-}
+class YoutubeController {}
 
 export default YoutubeController;

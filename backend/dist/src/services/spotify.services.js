@@ -18,20 +18,20 @@ dotenv_1.default.config();
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
 class SpotifyService {
     static getAuthUrl() {
-        const scopes = 'playlist-read-private playlist-modify-public';
+        const scopes = "playlist-read-private playlist-modify-public";
         return `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${SPOTIFY_REDIRECT_URI}&scope=${encodeURIComponent(scopes)}`;
     }
     static exchangeCodeForToken(code) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!SPOTIFY_REDIRECT_URI || !SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
-                throw new Error('Missing Spotify environment variables');
+                throw new Error("Missing Spotify environment variables");
             }
-            const response = yield axios_1.default.post('https://accounts.spotify.com/api/token', new URLSearchParams({
-                grant_type: 'authorization_code',
+            const response = yield axios_1.default.post("https://accounts.spotify.com/api/token", new URLSearchParams({
+                grant_type: "authorization_code",
                 code,
                 redirect_uri: SPOTIFY_REDIRECT_URI,
                 client_id: SPOTIFY_CLIENT_ID,
-                client_secret: SPOTIFY_CLIENT_SECRET
+                client_secret: SPOTIFY_CLIENT_SECRET,
             }).toString(), {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
