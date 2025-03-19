@@ -2,16 +2,14 @@
 const Button = () => {
   const signIn = async () => {
     const res = await fetch("http://localhost:5000/v1/auth/spotify", {
-      method: "POST",
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+          "Content-Type": "application/json",
       },
-      body: JSON.stringify({ provider: "spotify" }),
     });
-    const data = await res.json();
-    console.log(data);
 
+    const data = await res.json();
+    window.location.href = data.url;
   };
 
   return (

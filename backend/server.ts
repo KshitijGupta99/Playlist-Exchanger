@@ -9,10 +9,10 @@ app.get("/", (req, res) => {
 
 app.use(
   cors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  }),
-);
+    origin: "*", // Change this to your frontend domain for security
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // const v1routes = require('./src/routes/index');
 import v1Routes from "./src/routes";

@@ -11,8 +11,9 @@ app.get("/", (req, res) => {
     res.send("SErver is running...");
 });
 app.use((0, cors_1.default)({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: "*", // Change this to your frontend domain for security
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 // const v1routes = require('./src/routes/index');
 const routes_1 = __importDefault(require("./src/routes"));

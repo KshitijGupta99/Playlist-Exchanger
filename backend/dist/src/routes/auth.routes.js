@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const controllers_1 = require("../controllers");
 const spotifyController = new controllers_1.SpotifyController();
-router.post("/spotify", spotifyController.login);
+router.get("/spotify", spotifyController.login);
 // router.post('/youtube', YoutubeController );
 exports.default = router;

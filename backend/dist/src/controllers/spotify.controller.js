@@ -10,15 +10,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = require("../services");
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
 class SpotifyController {
     constructor() {
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const authUrl = services_1.SpotifyService.getAuthUrl();
             try {
-                const authUrl = services_1.SpotifyService.getAuthUrl();
-                res.redirect(authUrl);
+                console.log(authUrl);
+                const scope = "playlist-read-private playlist-modify-public";
+                // Fetch the authorization page from your backend
+                const response = yield fetch(authUrl, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                // Forward the response to the frontend
+                res.json({ url: response.url });
             }
             catch (error) {
-                res.status(500).json({ error: "failed to genrate auth url" });
+                console.error("Error fetching Spotify auth URL:", error);
+                res.status(500).json({ error: "Failed to generate auth URL" });
             }
         });
         this.callback = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -34,6 +46,7 @@ class SpotifyController {
             }
         });
         this.SpotifyService = new services_1.SpotifyService();
+        console.log("controller called");
     }
 }
 exports.default = SpotifyController;
