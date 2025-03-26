@@ -8,5 +8,6 @@ const router = express_1.default.Router();
 const controllers_1 = require("../controllers");
 const spotifyController = new controllers_1.SpotifyController();
 router.get("/spotify", spotifyController.login);
+router.get("/callback", spotifyController.callback);
 // router.post('/youtube', YoutubeController );
 exports.default = router;
