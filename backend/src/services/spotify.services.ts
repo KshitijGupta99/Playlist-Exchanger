@@ -16,7 +16,7 @@ class SpotifyService {
     if (!SPOTIFY_REDIRECT_URI || !SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
       throw new Error("Missing Spotify environment variables");
     }
-
+  
     const response = await axios.post(
       "https://accounts.spotify.com/api/token",
       new URLSearchParams({
@@ -28,10 +28,19 @@ class SpotifyService {
       }).toString(),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      },
+      }
     );
-    return response.data;
+  
+    const { access_token } = response.data;
+  
+    // Fetch user data using the access token
+    const userResponse = await axios.get("https://api.spotify.com/v1/me", {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+  
+    return { access_token, user: userResponse.data };
   }
+  
 }
 
 export default SpotifyService;

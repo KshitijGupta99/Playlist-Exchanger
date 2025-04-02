@@ -38,14 +38,15 @@ class SpotifyController {
   callback = async (req: Request, res: Response) => {
     try {
       const code = req.query.code as string;
-      const token = await SpotifyService.exchangeCodeForToken(code);
-      res.status(200).json({ token });
+      const { access_token, user } = await SpotifyService.exchangeCodeForToken(code);
+      
+      res.status(200).json({ access_token, user });
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "failed to get tokens, authenticatoin failed" });
+      console.error("Spotify Auth Error:", error);
+      res.status(500).json({ error: "Authentication failed" });
     }
   };
+  
 }
 
 export default SpotifyController;

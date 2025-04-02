@@ -35,7 +35,12 @@ class SpotifyService {
             }).toString(), {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
-            return response.data;
+            const { access_token } = response.data;
+            // Fetch user data using the access token
+            const userResponse = yield axios_1.default.get("https://api.spotify.com/v1/me", {
+                headers: { Authorization: `Bearer ${access_token}` },
+            });
+            return { access_token, user: userResponse.data };
         });
     }
 }

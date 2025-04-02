@@ -36,13 +36,12 @@ class SpotifyController {
         this.callback = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const code = req.query.code;
-                const token = yield services_1.SpotifyService.exchangeCodeForToken(code);
-                res.status(200).json({ token });
+                const { access_token, user } = yield services_1.SpotifyService.exchangeCodeForToken(code);
+                res.status(200).json({ access_token, user });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ error: "failed to get tokens, authenticatoin failed" });
+                console.error("Spotify Auth Error:", error);
+                res.status(500).json({ error: "Authentication failed" });
             }
         });
         this.SpotifyService = new services_1.SpotifyService();
