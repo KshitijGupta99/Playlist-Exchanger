@@ -24,8 +24,6 @@ app.use((0, helmet_1.default)({
                 "https://www.google.com",
                 "https://www.gstatic.com",
                 "https://www.recaptcha.net",
-                "http://localhost:3000",
-                "http://192.168.1.7:3000"
             ],
         },
     },
