@@ -35,13 +35,35 @@ class SpotifyController {
         });
         this.callback = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const code = req.query.code;
+                const code = req.body.code;
+                console.log("Authorization Code:", code);
+                if (!code) {
+                    return res.status(400).json({ error: "Authorization code missing!" });
+                }
                 const { access_token, user } = yield services_1.SpotifyService.exchangeCodeForToken(code);
+                console.log("Access Token:", access_token);
+                console.log("User Data:", user);
                 res.status(200).json({ access_token, user });
             }
             catch (error) {
                 console.error("Spotify Auth Error:", error);
-                res.status(500).json({ error: "Authentication failed" });
+                res.status(500).json({ error: error.message || "Authentication failed" });
+            }
+        });
+        this.getPlayList = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const accessToken = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]; // Extract token
+                if (!accessToken) {
+                    return res.status(401).json({ error: "Unauthorized" });
+                }
+                console.log("Access Token:", accessToken);
+                const playlists = yield services_1.SpotifyService.getUserPlaylists(accessToken);
+                res.status(200).json(playlists);
+            }
+            catch (error) {
+                console.error("Error fetching playlists:", error);
+                res.status(500).json({ error: error.message || "Failed to fetch playlists" });
             }
         });
         this.SpotifyService = new services_1.SpotifyService();

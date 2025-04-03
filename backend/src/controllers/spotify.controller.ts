@@ -37,16 +37,47 @@ class SpotifyController {
 
   callback = async (req: Request, res: Response) => {
     try {
-      const code = req.query.code as string;
-      const { access_token, user } = await SpotifyService.exchangeCodeForToken(code);
-      
+      const code = req.body.code as string;
+      console.log("Authorization Code:", code);
+  
+      if (!code) {
+        return res.status(400).json({ error: "Authorization code missing!" });
+      }
+  
+      const { access_token, user } =
+        await SpotifyService.exchangeCodeForToken(code);
+  
+      console.log("Access Token:", access_token);
+      console.log("User Data:", user);
+  
       res.status(200).json({ access_token, user });
     } catch (error) {
       console.error("Spotify Auth Error:", error);
-      res.status(500).json({ error: "Authentication failed" });
+      res.status(500).json({ error: error.message || "Authentication failed" });
+    }
+  
+  };
+
+  getPlayList = async (req: Request, res: Response) => {
+    try {
+      const accessToken = req.headers.authorization?.split(" ")[1]; // Extract token
+  
+      if (!accessToken) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      console.log("Access Token:", accessToken);
+      
+  
+      const playlists = await SpotifyService.getUserPlaylists(accessToken);
+      res.status(200).json(playlists);
+    } catch (error) {
+      console.error("Error fetching playlists:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch playlists" });
     }
   };
   
+
+
 }
 
 export default SpotifyController;

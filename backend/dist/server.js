@@ -11,6 +11,7 @@ const helmet_1 = __importDefault(require("helmet"));
 app.get("/", (req, res) => {
     res.send("SErver is running...");
 });
+app.use(express_1.default.json());
 app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {

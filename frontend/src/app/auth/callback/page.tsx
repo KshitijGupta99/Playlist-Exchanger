@@ -7,23 +7,36 @@ export default function SpotifyCallback() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    console.log("Spotify Callback Page Loaded");
+    // const urlParams = new URLSearchParams(window.location.search);
+    console.log("🔍 Full URL:", window.location.href);
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
+    console.log("🎟️ Authorization Code:", code);
     if (code) {
-      fetch("http://localhost:5000/v1/auth/spotify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Spotify User Data:", data.user);
-          setUser(data.user);
-          localStorage.setItem("spotifyUser", JSON.stringify(data.user)); // Save for future use
-          router.push("/dashboard"); // Redirect after auth
+      try {
+        fetch("http://localhost:5000/v1/auth/spotify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
         })
-        .catch((err) => console.error("Spotify Auth Error:", err));
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("✅ Spotify Response:", data);
+            if (data.access_token) {
+              setUser(data.user);
+              localStorage.setItem("spotifyUser", JSON.stringify(data.user));
+              localStorage.setItem("access_token", JSON.stringify(data.access_token));
+              router.push("/dashboard"); // ✅ Redirect to dashboard
+            } else {
+              console.error("❌ Authentication failed", data);
+            }
+          })
+          .catch((err) => console.error("❌ Spotify Auth Error:", err));
+      } catch (error) {
+        console.error("❌ Error during fetch:", error);
+      }
     }
   }, []);
 

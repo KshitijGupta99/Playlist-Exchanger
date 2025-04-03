@@ -9,6 +9,7 @@ app.get("/", (req, res) => {
   res.send("SErver is running...");
 });
 
+app.use(express.json());
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -58,7 +59,6 @@ app.use("/v1", v1Routes);
 //     'Route not found or does not exist!',
 //   );
 // });
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
