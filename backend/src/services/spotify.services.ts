@@ -42,13 +42,29 @@ class SpotifyService {
   }
 
   static async getUserPlaylists(access_token: string) {
-    const response = <Response>await axios.get("https://api.spotify.com/v1/me/playlists", {
-      headers: { "Authorization": `Bearer ${access_token}` , "Content-Type": "application/json"},
-    });
-    if (!response.ok) throw new Error("Failed to fetch playlists");
-
-    return await response.json();
+    try {
+      const response = await axios.get("https://api.spotify.com/v1/me/playlists", {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+  
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching playlists from Spotify:");
+  
+      if (axios.isAxiosError(error)) {
+        console.error("Status:", error.response?.status);
+        console.error("Data:", error.response?.data);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+  
+      throw new Error("Failed to fetch playlists");
+    }
   }
+  
   
 }
 

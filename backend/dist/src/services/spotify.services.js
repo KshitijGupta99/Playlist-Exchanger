@@ -45,12 +45,27 @@ class SpotifyService {
     }
     static getUserPlaylists(access_token) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield axios_1.default.get("https://api.spotify.com/v1/me/playlists", {
-                headers: { "Authorization": `Bearer ${access_token}`, "Content-Type": "application/json" },
-            });
-            if (!response.ok)
+            var _a, _b;
+            try {
+                const response = yield axios_1.default.get("https://api.spotify.com/v1/me/playlists", {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                return response.data;
+            }
+            catch (error) {
+                console.error("Error fetching playlists from Spotify:");
+                if (axios_1.default.isAxiosError(error)) {
+                    console.error("Status:", (_a = error.response) === null || _a === void 0 ? void 0 : _a.status);
+                    console.error("Data:", (_b = error.response) === null || _b === void 0 ? void 0 : _b.data);
+                }
+                else {
+                    console.error("Unexpected error:", error);
+                }
                 throw new Error("Failed to fetch playlists");
-            return yield response.json();
+            }
         });
     }
 }
