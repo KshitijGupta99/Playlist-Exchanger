@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [playlist, setplaylist] = useState<any>(null);
+  const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getPlaylist = async () => {
+    setShowPlaylist(true);
+    if(playlist) return;
     const user = JSON.parse(localStorage.getItem("spotifyUser") || "{}");
     if(!user.id) return;
     const rawToken = localStorage.getItem("access_token");
@@ -46,9 +50,10 @@ export default function Dashboard() {
           <h2>Welcome, {user.display_name}</h2>
           <img src={user.images?.[0]?.url} alt="Profile" width="100" />
           <p>Spotify ID: {user.id}</p>
-          <button onClick={getPlaylist}>Get PLaylist Data</button>
-          {playlist && (
+          {!showPlaylist && <button onClick={getPlaylist}>Get PLaylist Data</button>}
+          {playlist && showPlaylist && (
             <div>
+              <button onClick = {()=>setShowPlaylist(false)} > hide </button>
               <h3>Your Playlists:</h3>
               <ul>
                 {playlist.items.map((item: any) => (
