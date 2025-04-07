@@ -33,7 +33,7 @@ export default function SpotifyCallback() {
               console.error("❌ Authentication failed", data);
             }
           })
-          .catch((err) => console.error("❌ Spotify Auth Error:", err));
+          .catch((err) => console.error("❌ Youyube Auth Error:", err));
       } catch (error) {
         console.error("❌ Error during fetch:", error);
       }
