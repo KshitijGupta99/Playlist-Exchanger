@@ -38,22 +38,29 @@ class YoutubeService {
             if (!YT_REDIRECT_URI || !YT_CLIENT_ID || !YT_CLIENT_SECRET) {
                 throw new Error("Missing Spotify environment variables");
             }
-            const response = yield axios_1.default.post("https://oauth2.googleapis.com/token", new URLSearchParams({
-                code,
-                client_id: YT_CLIENT_ID,
-                client_secret: YT_CLIENT_SECRET,
-                redirect_uri: YT_REDIRECT_URI,
-                grant_type: "authorization_code",
-            }).toString(), {
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            });
-            console.log(response.data);
-            const { access_token } = response.data;
-            // Fetch user data using the access token
-            const userResponse = yield axios_1.default.get("https://www.googleapis.com/oauth2/v2/userinfo", {
-                headers: { Authorization: `Bearer ${access_token}` },
-            });
-            return { access_token, user: userResponse.data };
+            try {
+                const response = yield axios_1.default.post("https://oauth2.googleapis.com/token", new URLSearchParams({
+                    code,
+                    client_id: YT_CLIENT_ID,
+                    client_secret: YT_CLIENT_SECRET,
+                    redirect_uri: YT_REDIRECT_URI,
+                    grant_type: "authorization_code",
+                }).toString(), {
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                });
+                console.log(response.data);
+                const { access_token } = response.data;
+                // Fetch user data using the access token
+                const userResponse = yield axios_1.default.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+                    headers: { Authorization: `Bearer ${access_token}` },
+                });
+                return { access_token, user: userResponse.data };
+            } catch (error) {
+                console.error("Error exchanging code for token:", error);
+                throw new Error("Failed to exchange code for token");
+
+            }
+
         });
     }
 }
