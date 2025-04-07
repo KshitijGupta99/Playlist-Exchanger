@@ -1,4 +1,4 @@
 import SpotifyService from "./spotify.services";
-// import YoutubeController from "./youtube.services";
+import YoutubeService from "./youtube.services";
 
-export { SpotifyService };
+export { SpotifyService, YoutubeService};

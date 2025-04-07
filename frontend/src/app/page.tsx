@@ -1,14 +1,16 @@
 "use client"
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import Button from "@/components/Button";
+import SpotifyButton from "@/components/ButtonSpotifyLogin";
+import YTButton from "@/components/ButtonYTLogin";
 
 export default function Home() {
 
   return (
     <div>
       <h1>basic home page</h1>
-      <div><Button /> </div>
+      <div><SpotifyButton /> </div>
+      <div><YTButton/></div>
     </div>
   );
 }

@@ -1,22 +1,34 @@
-// import { Request, Response } from "express";
+import { Request, Response } from "express";
 
-// import { YoutubeService } from "../services";
+import { YoutubeService } from "../services";
 
-// const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
-//   process.env;
+const { YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REDIRECT_URI } =
+    process.env;
 
-// class YoutubeController {
-//   SpotifyService: YoutubeService;
+class YoutubeController {
+    YoutubeService: YoutubeService;
 
-//   constructor() {
-//     this.YoutubeService = new YoutubeService();
-//     console.log("controller called");
-//   }
+    constructor() {
+        this.YoutubeService = new YoutubeService();
+        console.log("controller called");
+    }
 
-//   get = async(res: Request, res: Response)=>{
-    
-//   }
+    login = async (req: Request, res: Response) => {
+        const { code } = req.body;
+        const authUrl = YoutubeService.getAuthUrl();
+        try {
 
-// }
+            const token = await YoutubeService.exchangeCodeForToken("code");
+            console.log("Access Token:", token);
+            const {access_token} = token;
 
-// export default SpotifyController;
+        } catch (error) {
+            console.error("Error fetching Youtube auth URL:", error);
+            res.status(500).json({ error: "Failed to generate auth URL" });
+
+        }
+
+    };
+}
+
+export default YoutubeController;
