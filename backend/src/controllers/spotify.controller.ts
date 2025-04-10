@@ -39,7 +39,7 @@ class SpotifyController {
     try {
       const code = req.body.code as string;
       console.log("Authorization Code:", code);
-  
+
       if (!code) {
         return res.status(400).json({ error: "Authorization code missing!" });
       }
