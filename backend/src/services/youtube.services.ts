@@ -64,5 +64,39 @@ class YoutubeService {
       throw new Error("Failed to exchange code for token");
     }
   }
+
+  static async getPlaylists(access_token: string) {
+    try {
+      const response = await axios.get("https://www.googleapis.com/youtube/v3/playlists", {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: {
+          part: "snippet",
+          mine: true,
+          maxResults: 25,
+        },
+      });
+      return response.data.items;
+    } catch (error) {
+      console.error("Error fetching playlists:", error);
+      throw new Error("Failed to fetch playlists");
+    }
+  }
+
+  static async getPlaylistItems(access_token: string, playlistId: string) {
+    try {
+      const response = await axios.get("https://www.googleapis.com/youtube/v3/playlistItems", {
+        headers: { Authorization: `Bearer ${access_token}` },
+        params: {
+          part: "snippet",
+          playlistId,
+          maxResults: 50,
+        },
+      });
+      return response.data.items;
+    } catch (error) {
+      console.error("Error fetching playlist items:", error);
+      throw new Error("Failed to fetch playlist items");
+    }
+  }
 }
 export default YoutubeService;

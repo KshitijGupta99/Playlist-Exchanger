@@ -41,6 +41,38 @@ class YoutubeController {
                 res.status(500).json({ error: error.message || "Authentication failed" });
             }
         });
+        this.getPlaylists = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authHeader = req.headers.authorization;
+                if (!authHeader || !authHeader.startsWith("Bearer ")) {
+                    return res.status(400).json({ error: "Access token missing or invalid!" });
+                }
+                const accessToken = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+                console.log("Access Token:", accessToken);
+                const playlists = yield services_1.YoutubeService.getPlaylists(accessToken);
+                res.status(200).json(playlists);
+            }
+            catch (error) {
+                console.error("Error fetching playlists:", error);
+                res.status(500).json({ error: "Failed to fetch playlists" });
+            }
+        });
+        this.getPlaylistItems = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { access_token, playlistId } = req.body;
+                console.log("Access Token:", access_token);
+                console.log("Playlist ID:", playlistId);
+                if (!access_token || !playlistId) {
+                    return res.status(400).json({ error: "Access token or Playlist ID missing!" });
+                }
+                const items = yield services_1.YoutubeService.getPlaylistItems(access_token, playlistId);
+                res.status(200).json(items);
+            }
+            catch (error) {
+                console.error("Error fetching playlist items:", error);
+                res.status(500).json({ error: "Failed to fetch playlist items" });
+            }
+        });
         this.YoutubeService = new services_1.YoutubeService();
         console.log("controller called");
     }
