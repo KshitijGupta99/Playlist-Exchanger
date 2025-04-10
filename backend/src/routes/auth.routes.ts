@@ -9,6 +9,7 @@ const youtubeController = new YoutubeController();
 router.get("/spotify", spotifyController.login);
 router.post("/spotify", spotifyController.callback);
 router.get("/youtube", youtubeController.login);
+router.post("/youtube", youtubeController.callback);
 
 
 export default router;

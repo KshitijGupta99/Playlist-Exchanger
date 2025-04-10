@@ -40,5 +40,5 @@ export default function SpotifyCallback() {
     }
   }, []);
 
-  return <h1>Authenticating with Spotify...</h1>;
+  return <h1>Authenticating with Youtube...</h1>;
 }

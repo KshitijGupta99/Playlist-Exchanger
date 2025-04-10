@@ -20,47 +20,49 @@ class YoutubeService {
     static getAuthUrl() {
         const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
         const options = {
-            client_id: process.env.YT_CLIENT_ID,
-            redirect_uri: process.env.YT_REDIRECT_URI,
+            client_id: YT_CLIENT_ID,
+            redirect_uri: YT_REDIRECT_URI,
             response_type: 'code',
-            access_type: 'offline', // needed to get refresh_token
+            access_type: 'offline',
+            prompt: 'consent',
             scope: [
                 'https://www.googleapis.com/auth/youtube.readonly',
                 'https://www.googleapis.com/auth/userinfo.email',
             ].join(' '),
         };
-        const urlParams = new URLSearchParams(options).toString();
-        const authUrl = `${rootUrl}?${urlParams}`;
+        const authUrl = `${rootUrl}?${new URLSearchParams(options)}`;
         return authUrl;
     }
     static exchangeCodeForToken(code) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!YT_REDIRECT_URI || !YT_CLIENT_ID || !YT_CLIENT_SECRET) {
-                throw new Error("Missing Spotify environment variables");
+                throw new Error("Missing YouTube environment variables");
             }
             try {
-                const response = yield axios_1.default.post("https://oauth2.googleapis.com/token", new URLSearchParams({
+                const response = yield axios_1.default.post("https://oauth2.googleapis.com/token", // ✅ Correct endpoint for Google
+                new URLSearchParams({
                     code,
                     client_id: YT_CLIENT_ID,
                     client_secret: YT_CLIENT_SECRET,
                     redirect_uri: YT_REDIRECT_URI,
                     grant_type: "authorization_code",
                 }).toString(), {
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
                 });
                 console.log(response.data);
                 const { access_token } = response.data;
-                // Fetch user data using the access token
+                // ✅ YouTube uses the same userinfo endpoint as Google
                 const userResponse = yield axios_1.default.get("https://www.googleapis.com/oauth2/v2/userinfo", {
                     headers: { Authorization: `Bearer ${access_token}` },
                 });
                 return { access_token, user: userResponse.data };
-            } catch (error) {
-                console.error("Error exchanging code for token:", error);
-                throw new Error("Failed to exchange code for token");
-
             }
-
+            catch (error) {
+                console.error("Error in exchangeCodeForToken in youtube :", error);
+                throw new Error("Failed to exchange code for token");
+            }
         });
     }
 }
