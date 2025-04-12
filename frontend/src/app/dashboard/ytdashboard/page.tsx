@@ -1,5 +1,6 @@
 "use client";
 
+import SpotifyButton from "@/components/ButtonSpotifyLogin";
 import React, { useState } from "react";
 
 export default function DashboardPage() {
@@ -34,7 +35,8 @@ export default function DashboardPage() {
                 <p className="text-gray-600 mb-6">
                     Welcome to your YouTube Dashboard! Here you can view your playlists and manage them.
                 </p>
-
+                <h4>Also you should log in to Spotify</h4>
+                <SpotifyButton />
                 <button
                     onClick={getPlaylist}
                     className="bg-blue-500 hover:bg-blue-600  text-white font-semibold py-2 px-4 rounded mb-6"

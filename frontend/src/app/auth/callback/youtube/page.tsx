@@ -28,7 +28,13 @@ export default function SpotifyCallback() {
               setUser(data.user);
               localStorage.setItem("youtubeuser", JSON.stringify(data.user));
               localStorage.setItem("access_token_youtube", JSON.stringify(data.access_token));
-              router.push("/dashboard/ytdashboard"); // ✅ Redirect to dashboard
+
+              // Check if Spotify token exists
+              if (localStorage.getItem("access_token") !== null) {
+                router.push("/dashboard/home"); // Redirect to home if both YouTube and Spotify are logged in
+              } else {
+                router.push("/dashboard/ytdashboard"); // Redirect to YouTube dashboard otherwise
+              }
             } else {
               console.error("❌ Authentication failed", data);
             }

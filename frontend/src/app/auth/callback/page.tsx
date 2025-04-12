@@ -28,7 +28,12 @@ export default function SpotifyCallback() {
               setUser(data.user);
               localStorage.setItem("spotifyUser", JSON.stringify(data.user));
               localStorage.setItem("access_token", JSON.stringify(data.access_token));
-              router.push("/dashboard"); // ✅ Redirect to dashboard
+              if(localStorage.getItem("access_token_youtube") !== null){
+                // localStorage.removeItem("access_token");
+                router.push("/dashboard/home"); 
+              }else{
+                router.push("/dashboard"); // ✅ Redirect to dashboard
+              }
             } else {
               console.error("❌ Authentication failed", data);
             }

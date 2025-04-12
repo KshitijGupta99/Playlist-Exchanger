@@ -1,4 +1,5 @@
 "use client";
+import YTButton from "@/components/ButtonYTLogin";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
@@ -50,6 +51,9 @@ export default function Dashboard() {
           <h2>Welcome, {user.display_name}</h2>
           <img src={user.images?.[0]?.url} alt="Profile" width="100" />
           <p>Spotify ID: {user.id}</p>
+
+          <h4>Also you should login to youtube</h4>
+          <YTButton />
           {!showPlaylist && <button onClick={getPlaylist}>Get PLaylist Data</button>}
           {playlist && showPlaylist && (
             <div>
