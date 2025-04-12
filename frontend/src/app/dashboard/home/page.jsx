@@ -46,7 +46,7 @@ export default function HomePage() {
     const from = selectedPlaylist.platform;
     const to = from === "spotify" ? "youtube" : "spotify";
 
-    const res = await fetch(`http://localhost:5000/v1/convert`, {
+    const res = await fetch(`http://localhost:5000/v1/playlist/convert`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(selectedPlaylist),
@@ -124,7 +124,7 @@ export default function HomePage() {
         <div className="mt-10 bg-white p-6 rounded-xl shadow-lg text-center">
           <p className="text-lg font-semibold mb-2">
             Selected:{" "}
-            <span className="text-blue-600">
+            <span className="text-blue-600 font-bold">
               {selectedPlaylist.name || selectedPlaylist.snippet?.title}
             </span>{" "}
             from <strong>{selectedPlaylist.platform}</strong>

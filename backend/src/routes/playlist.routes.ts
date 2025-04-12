@@ -6,6 +6,7 @@ const youtubeController = new YoutubeController();
 const spotifyController = new SpotifyController();
 router.get("/youtube", youtubeController.getPlaylists);
 router.get("/spotify", spotifyController.getPlayList);
+router.post('/connvert');
 // router.post("/swap", YoutubeController.swap);
 // router.post('/youtube', YoutubeController );
 
