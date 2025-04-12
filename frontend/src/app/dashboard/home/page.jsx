@@ -66,9 +66,12 @@ export default function HomePage() {
         <div
           key={p.id}
           className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer p-4 flex gap-4 items-center border-2 ${
-            isSelected ? "border-blue-500" : "border-transparent"
-          }`}
-          onClick={() => setSelectedPlaylist({ ...p, platform })}
+            isSelected ? "border-blue-500 " : "border-transparent"
+          } bg-gray-50 hover:bg-gray-100`}
+          style={{ backgroundColor: isSelected ? "#e0f7fa" : "white", marginBottom: "1rem" , display: "flex", alignItems: "center" }}
+          onClick={() => {
+            console.log(selectedPlaylist);
+            setSelectedPlaylist({ ...p, platform })}}
         >
           <img
             src={image}
@@ -76,6 +79,7 @@ export default function HomePage() {
             className="w-16 h-16 rounded object-cover"
             height={80}
             width={80}
+            style={{ borderRadius: "0.5rem" , marginRight: "1rem" }}
           />
           <div className="flex-1">
             <a

@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import SpotifyButton from "@/components/ButtonSpotifyLogin";
 import YTButton from "@/components/ButtonYTLogin";
-
+import './index.css';
 export default function Home() {
 
   return (
