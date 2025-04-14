@@ -13,24 +13,23 @@ class ConverterController {
             const spotifyToken = req.headers["spotify-token"];
             const youtubeToken = req.headers["youtube-token"];
 
-            if (!accessToken || !playlist) {
+            if (!youtubeToken || !spotifyToken || !playlist) {
                 return res
                     .status(400)
                     .json({ error: "Missing token or playlist data" });
             }
 
             let result;
-
             if (playlist.platform === "spotify") {
                 // Converting from Spotify to YouTube
-                result = await this.convertSpotifyToYouTube(playlist, spotifyToken, youtubeToken);
+                console.log("first");
+                result = await this.convertSpotifyToYouTube(playlist.id, spotifyToken, youtubeToken);
             } else {
                 // Converting from YouTube to Spotify
 
-                result = await this.convertYouTubeToSpotify(playlist, youtubeToken, spotifyToken);
+                result = await this.convertYouTubeToSpotify(playlist.id, youtubeToken, spotifyToken);
             }
-
-            res.status(200).json({ message: "Conversion complete ✅", result });
+            res.status(200).json({ message: "Conversion complete ✅", result: result });
         } catch (err) {
             console.error("❌ Conversion Error:", err);
             res.status(500).json({ error: "Server error during conversion" });
@@ -39,7 +38,7 @@ class ConverterController {
 
     convertSpotifyToYouTube = async (spotifyPlaylistId, spotifyToken, youtubeToken) => {
         const tracks = await ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
-
+        console.log("tracks aquired success")
         const playlistTitle = `Converted from Spotify - ${Date.now()}`;
         const playlistId = await ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
 
@@ -53,17 +52,18 @@ class ConverterController {
 
 
     convertYouTubeToSpotify = async (youtubePlaylistId, youtubeToken, spotifyToken) => {
-        const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
+        return { success: true, message: 'Converted to Spotify' };
+        // const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
 
-        const playlistName = `Converted from YouTube - ${Date.now()}`;
-        const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
+        // const playlistName = `Converted from YouTube - ${Date.now()}`;
+        // const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
 
-        for (const video of videos) {
-            const query = video.title;
-            await ConverterService.searchAndAddToSpotify(query, playlistId, spotifyToken);
-        }
+        // for (const video of videos) {
+        //     const query = video.title;
+        //     await ConverterService.searchAndAddToSpotify(query, playlistId, spotifyToken);
+        // }
 
-        return { success: true, message: 'Converted to Spotify', playlistId };
+        // return { success: true, message: 'Converted to Spotify', playlistId };
     };
 }
 

@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const port = 5000;
 const helmet_1 = __importDefault(require("helmet"));
+app.use((0, cors_1.default)());
 app.get("/", (req, res) => {
     res.send("SErver is running...");
 });
@@ -33,11 +34,6 @@ app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy", "connect-src 'self' https://*.spotify.com https://*.google-analytics.com https://*.ingest.sentry.io/ https://*.googletagmanager.com https://www.google.com/recaptcha/enterprise/;");
     next();
 });
-app.use((0, cors_1.default)({
-    origin: "*", // Change this to your frontend domain for security
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
 // const v1routes = require('./src/routes/index');
 const routes_1 = __importDefault(require("./src/routes"));
 app.use("/v1", routes_1.default);

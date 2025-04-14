@@ -4,6 +4,7 @@ const app: Application = express();
 const port: Number = 5000;
 import helmet from "helmet";
 
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("SErver is running...");
@@ -39,12 +40,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-  cors({
-    origin: "*", // Change this to your frontend domain for security
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
 
 
 
