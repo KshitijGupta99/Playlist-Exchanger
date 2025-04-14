@@ -58,7 +58,7 @@ class SpotifyService {
         console.error("Status:", error.response?.status);
         console.error("Data:", error.response?.data);
       } else {
-        console.error("Unexpected error:", error);
+        console.error("Unexpected error:", error.data.error);
       }
   
       throw new Error("Failed to fetch playlists");

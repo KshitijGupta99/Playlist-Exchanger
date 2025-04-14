@@ -23,3 +23,5 @@ class ConverterService{
         return { message: "Converted to YouTube", data };
     }
 }
+
+export default ConverterService;

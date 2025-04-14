@@ -45,22 +45,33 @@ export default function HomePage() {
     if (!selectedPlaylist) return;
     const from = selectedPlaylist.platform;
     const to = from === "spotify" ? "youtube" : "spotify";
-
-    const res = await fetch(`http://localhost:5000/v1/playlist/convert`, {
+    
+    const res = await fetch("http://localhost:5000/v1/playlist/convert", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "spotify-token": localStorage.getItem("access_token"),
+        "youtube-token": localStorage.getItem("access_token_youtube"),
+      },
       body: JSON.stringify(selectedPlaylist),
     });
+
     const data = await res.json();
     alert(`Converted to ${to} ✔️`);
   };
 
   const renderPlaylists = (playlists, platform) =>
     playlists.map((p) => {
-      const isSelected = selectedPlaylist?.id === p.id && selectedPlaylist?.platform === platform;
+      const isSelected =
+        selectedPlaylist?.id === p.id &&
+        selectedPlaylist?.platform === platform;
       const title = p.name || p.snippet?.title || "Untitled";
-      const image = p.images?.[0]?.url || p.snippet?.thumbnails?.default?.url || "https://via.placeholder.com/150";
-      const url = p.external_urls?.spotify || p.snippet?.thumbnails?.default?.url || "#";
+      const image =
+        p.images?.[0]?.url ||
+        p.snippet?.thumbnails?.default?.url ||
+        "https://via.placeholder.com/150";
+      const url =
+        p.external_urls?.spotify || p.snippet?.thumbnails?.default?.url || "#";
 
       return (
         <div
@@ -68,10 +79,16 @@ export default function HomePage() {
           className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer p-4 flex gap-4 items-center border-2 ${
             isSelected ? "border-blue-500 " : "border-transparent"
           } bg-gray-50 hover:bg-gray-100`}
-          style={{ backgroundColor: isSelected ? "#e0f7fa" : "white", marginBottom: "1rem" , display: "flex", alignItems: "center" }}
+          style={{
+            backgroundColor: isSelected ? "#e0f7fa" : "white",
+            marginBottom: "1rem",
+            display: "flex",
+            alignItems: "center",
+          }}
           onClick={() => {
             console.log(selectedPlaylist);
-            setSelectedPlaylist({ ...p, platform })}}
+            setSelectedPlaylist({ ...p, platform });
+          }}
         >
           <img
             src={image}
@@ -79,7 +96,7 @@ export default function HomePage() {
             className="w-16 h-16 rounded object-cover"
             height={80}
             width={80}
-            style={{ borderRadius: "0.5rem" , marginRight: "1rem" }}
+            style={{ borderRadius: "0.5rem", marginRight: "1rem" }}
           />
           <div className="flex-1">
             <a

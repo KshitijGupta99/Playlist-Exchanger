@@ -1,30 +1,70 @@
-class Converter{
+import { ConverterService } from "../services";
+
+
+class ConverterController {
+    convertService: ConverterService;
     constructor() {
-        // Constructor logic here
+        this.ConvertService = new ConverterService();
     }
-    
-    convert = async(req: Request, res: Response) => {
+
+    convert = async (req: Request, res: Response) => {
         try {
-            const { playlistData , platformFrom , platformTo } = req.body; // Assuming you're sending data in the request body
-            console.log("Data received:", playlistData);
-            
-            if (!playlistData || !platformFrom || !platformTo) {
-                return res.status(400).json({ message: 'Missing required parameters' });
+            const playlist = req.body;
+            const spotifyToken = req.headers["spotify-token"];
+            const youtubeToken = req.headers["youtube-token"];
+
+            if (!accessToken || !playlist) {
+                return res
+                    .status(400)
+                    .json({ error: "Missing token or playlist data" });
             }
 
-            // Perform conversion logic here
-            let convertedData;
-            if(platformTo == "youtube") convertedData = await convertToYoutube(playlistData, platformFrom); // Example function to convert data
-            if(platformTo == "spotify") convertedData = await convertToSpotify(playlistData, platformFrom);
-            else{
-                return res.status(400).json({ error: "Invalid platform specified" });
-            } // Example function to convert data
-            res.status(200).json({ convertedData });
-        } catch (error) {
-            console.error("Conversion Error:", error);
-            res.status(500).json({ error: "Conversion failed" });
+            let result;
+
+            if (playlist.platform === "spotify") {
+                // Converting from Spotify to YouTube
+                result = await this.convertSpotifyToYouTube(playlist, spotifyToken, youtubeToken);
+            } else {
+                // Converting from YouTube to Spotify
+
+                result = await this.convertYouTubeToSpotify(playlist, youtubeToken, spotifyToken);
+            }
+
+            res.status(200).json({ message: "Conversion complete ✅", result });
+        } catch (err) {
+            console.error("❌ Conversion Error:", err);
+            res.status(500).json({ error: "Server error during conversion" });
         }
-    }
+    };
+
+    convertSpotifyToYouTube = async (spotifyPlaylistId, spotifyToken, youtubeToken) => {
+        const tracks = await ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
+
+        const playlistTitle = `Converted from Spotify - ${Date.now()}`;
+        const playlistId = await ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
+
+        for (const track of tracks) {
+            const query = `${track.name} ${track.artists.join(' ')}`;
+            await ConverterService.searchAndAddToYoutube(query, playlistId, youtubeToken);
+        }
+
+        return { success: true, message: 'Converted to YouTube', playlistId };
+    };
+
+
+    convertYouTubeToSpotify = async (youtubePlaylistId, youtubeToken, spotifyToken) => {
+        const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
+
+        const playlistName = `Converted from YouTube - ${Date.now()}`;
+        const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
+
+        for (const video of videos) {
+            const query = video.title;
+            await ConverterService.searchAndAddToSpotify(query, playlistId, spotifyToken);
+        }
+
+        return { success: true, message: 'Converted to Spotify', playlistId };
+    };
 }
 
-export default Converter;
+export default ConverterController;
