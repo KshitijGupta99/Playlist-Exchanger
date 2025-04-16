@@ -12,9 +12,8 @@ class ConverterService {
   static async getSpotifyTracks(playlistId, token) {
     try {
       const res = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-      console.log(res);
       if (!res.ok) {
         throw new Error("Failed to fetch Spotify tracks");
       }
@@ -57,7 +56,7 @@ class ConverterService {
   static async searchAndAddToYoutube(track, playlistId, youtubeAccessToken) {
     try {
       // Search for the track on YouTube
-      const query = `${track.name} ${track.artist}`;
+      const query = track;
       const searchRes = await fetch(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
           query

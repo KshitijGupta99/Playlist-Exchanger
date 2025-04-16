@@ -10,8 +10,12 @@ class ConverterController {
     convert = async (req: Request, res: Response) => {
         try {
             const playlist = req.body;
-            const spotifyToken = req.headers["spotify-token"];
-            const youtubeToken = req.headers["youtube-token"];
+
+            const spotifyRawToken = req.headers["spotify-token"];
+            const youtubeRawToken = req.headers["youtube-token"];
+
+            const spotifyToken = spotifyRawToken?.replace(/^"|"$/g, '');
+            const youtubeToken = youtubeRawToken?.replace(/^"|"$/g, '');
 
             if (!youtubeToken || !spotifyToken || !playlist) {
                 return res
@@ -38,12 +42,13 @@ class ConverterController {
 
     convertSpotifyToYouTube = async (spotifyPlaylistId, spotifyToken, youtubeToken) => {
         const tracks = await ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
-        console.log("tracks aquired success")
+        console.log("tracks aquired success");
         const playlistTitle = `Converted from Spotify - ${Date.now()}`;
         const playlistId = await ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
 
         for (const track of tracks) {
-            const query = `${track.name} ${track.artists.join(' ')}`;
+            console.log(track);
+            const query = track;
             await ConverterService.searchAndAddToYoutube(query, playlistId, youtubeToken);
         }
 

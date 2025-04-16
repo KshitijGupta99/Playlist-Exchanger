@@ -20,9 +20,8 @@ class ConverterService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const res = yield fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 });
-                console.log(res);
                 if (!res.ok) {
                     throw new Error("Failed to fetch Spotify tracks");
                 }
@@ -63,7 +62,7 @@ class ConverterService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Search for the track on YouTube
-                const query = `${track.name} ${track.artist}`;
+                const query = track;
                 const searchRes = yield fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=1`, {
                     headers: {
                         Authorization: `Bearer ${youtubeAccessToken}`,

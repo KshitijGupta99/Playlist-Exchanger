@@ -26,7 +26,7 @@ class YoutubeService {
             access_type: 'offline',
             prompt: 'consent',
             scope: [
-                'https://www.googleapis.com/auth/youtube.readonly',
+                'https://www.googleapis.com/auth/youtube',
                 'https://www.googleapis.com/auth/userinfo.email',
             ].join(' '),
         };

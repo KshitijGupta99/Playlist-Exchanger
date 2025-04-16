@@ -15,8 +15,10 @@ class ConverterController {
         this.convert = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const playlist = req.body;
-                const spotifyToken = req.headers["spotify-token"];
-                const youtubeToken = req.headers["youtube-token"];
+                const spotifyRawToken = req.headers["spotify-token"];
+                const youtubeRawToken = req.headers["youtube-token"];
+                const spotifyToken = spotifyRawToken === null || spotifyRawToken === void 0 ? void 0 : spotifyRawToken.replace(/^"|"$/g, '');
+                const youtubeToken = youtubeRawToken === null || youtubeRawToken === void 0 ? void 0 : youtubeRawToken.replace(/^"|"$/g, '');
                 if (!youtubeToken || !spotifyToken || !playlist) {
                     return res
                         .status(400)
@@ -45,7 +47,8 @@ class ConverterController {
             const playlistTitle = `Converted from Spotify - ${Date.now()}`;
             const playlistId = yield services_1.ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
             for (const track of tracks) {
-                const query = `${track.name} ${track.artists.join(' ')}`;
+                console.log(track);
+                const query = track;
                 yield services_1.ConverterService.searchAndAddToYoutube(query, playlistId, youtubeToken);
             }
             return { success: true, message: 'Converted to YouTube', playlistId };
