@@ -42,6 +42,9 @@ class ConverterController {
 
     convertSpotifyToYouTube = async (spotifyPlaylistId, spotifyToken, youtubeToken) => {
         const tracks = await ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
+        if(tracks.length === 0) {   
+            return { success: false, message: 'No tracks found in Spotify playlist' };
+        }
         console.log("tracks aquired success");
         const playlistTitle = `Converted from Spotify - ${Date.now()}`;
         const playlistId = await ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
