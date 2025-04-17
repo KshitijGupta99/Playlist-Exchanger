@@ -57,15 +57,15 @@ class ConverterController {
             return { success: true, message: 'Converted to YouTube', playlistId };
         });
         this.convertYouTubeToSpotify = (youtubePlaylistId, youtubeToken, spotifyToken) => __awaiter(this, void 0, void 0, function* () {
-            return { success: true, message: 'Converted to Spotify' };
-            // const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
-            // const playlistName = `Converted from YouTube - ${Date.now()}`;
-            // const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
-            // for (const video of videos) {
-            //     const query = video.title;
-            //     await ConverterService.searchAndAddToSpotify(query, playlistId, spotifyToken);
-            // }
-            // return { success: true, message: 'Converted to Spotify', playlistId };
+            const videos = yield services_1.ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
+            console.log(videos);
+            const playlistName = `Converted from YouTube - ${Date.now()}`;
+            const playlistId = yield services_1.ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
+            for (const video of videos) {
+                const query = video.title;
+                yield services_1.ConverterService.searchAndAddToSpotify(query, playlistId, spotifyToken);
+            }
+            return { success: true, message: 'Converted to Spotify', playlistId };
         });
         this.ConvertService = new services_1.ConverterService();
     }

@@ -8,7 +8,7 @@ const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
 
 class SpotifyService {
   static getAuthUrl(): string {
-    const scopes = "playlist-read-private playlist-modify-public";
+    const scopes = "playlist-read-private playlist-modify-public playlist-modify-private";
     return `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${SPOTIFY_REDIRECT_URI}&scope=${encodeURIComponent(scopes)}`;
   }
 

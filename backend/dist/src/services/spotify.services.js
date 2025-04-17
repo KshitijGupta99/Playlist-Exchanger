@@ -18,7 +18,7 @@ dotenv_1.default.config();
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
 class SpotifyService {
     static getAuthUrl() {
-        const scopes = "playlist-read-private playlist-modify-public";
+        const scopes = "playlist-read-private playlist-modify-public playlist-modify-private";
         return `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${SPOTIFY_REDIRECT_URI}&scope=${encodeURIComponent(scopes)}`;
     }
     static exchangeCodeForToken(code) {
