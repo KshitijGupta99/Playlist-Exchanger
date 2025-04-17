@@ -27,11 +27,11 @@ class ConverterController {
             if (playlist.platform === "spotify") {
                 // Converting from Spotify to YouTube
                 console.log("first");
-                result = await this.convertSpotifyToYouTube(playlist.id, spotifyToken, youtubeToken);
+                result = await this.convertSpotifyToYouTube(playlist.name, playlist.id, spotifyToken, youtubeToken);
             } else {
                 // Converting from YouTube to Spotify
 
-                result = await this.convertYouTubeToSpotify(playlist.id, youtubeToken, spotifyToken);
+                result = await this.convertYouTubeToSpotify(playlist.snippet.title, playlist.id, youtubeToken, spotifyToken);
             }
             res.status(200).json({ message: "Conversion complete ✅", result: result });
         } catch (err) {
@@ -40,13 +40,13 @@ class ConverterController {
         }
     };
 
-    convertSpotifyToYouTube = async (spotifyPlaylistId, spotifyToken, youtubeToken) => {
+    convertSpotifyToYouTube = async (title, spotifyPlaylistId, spotifyToken, youtubeToken) => {
         const tracks = await ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
         if(tracks.length === 0) {   
             return { success: false, message: 'No tracks found in Spotify playlist' };
         }
         console.log("tracks aquired success");
-        const playlistTitle = `Converted from Spotify - ${Date.now()}`;
+        const playlistTitle = `${title} (Converted from Spotify - ${Date.now()})`;
         const playlistId = await ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
 
         for (const track of tracks) {
@@ -59,11 +59,11 @@ class ConverterController {
     };
 
 
-    convertYouTubeToSpotify = async (youtubePlaylistId, youtubeToken, spotifyToken) => {
+    convertYouTubeToSpotify = async (title, youtubePlaylistId, youtubeToken, spotifyToken) => {
         const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
         console.log(videos);
         
-        const playlistName = `Converted from YouTube - ${Date.now()}`;
+        const playlistName = `${title} (Converted from YouTube - ${Date.now()})`;
         const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
         
         for (const video of videos) {
