@@ -1,12 +1,37 @@
 "use client";
 import YTButton from "@/components/ButtonYTLogin";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+
+interface SpotifyImage {
+  url: string;
+  height?: number | null;
+  width?: number | null;
+}
+
+interface SpotifyUser {
+  display_name: string;
+  id: string;
+  images: SpotifyImage[];
+  // Add other fields as needed
+}
+
+interface SpotifyPlaylistItem {
+  id: string;
+  name: string;
+  images: SpotifyImage[];
+  // Add other fields as needed
+}
+
+interface SpotifyPlaylistResponse {
+  items: SpotifyPlaylistItem[];
+  // Add other fields as needed
+}
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [playlist, setplaylist] = useState<any>(null);
+  const [user, setUser] = useState<SpotifyUser | null>(null);
+  const [playlist, setplaylist] = useState<SpotifyPlaylistResponse>(null);
   const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const getPlaylist = async () => {
     setShowPlaylist(true);
@@ -52,10 +77,11 @@ export default function Dashboard() {
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">
             Welcome, {user.display_name}
           </h2>
-          <img
-            src={user.images?.[0]?.url}
+          <Image
+            src={user.images?.[0]?.url || ""}
             alt="Profile"
-            width="100"
+            width={100}
+            height={100}
             className="mx-auto rounded-full shadow-md"
           />
           <p className="text-sm text-gray-500 mt-2">Spotify ID: {user.id}</p>
@@ -88,12 +114,12 @@ export default function Dashboard() {
             </div>
 
             <ul className="space-y-4">
-              {playlist.items.map((item: any) => (
+              {playlist.items.map((item: SpotifyPlaylistItem) => (
                 <li
                   key={item.id}
                   className="flex items-center gap-4 bg-white p-3 rounded-lg shadow-sm"
                 >
-                  <img
+                  <Image
                     src={item.images?.[0]?.url}
                     alt="Playlist"
                     className="w-12 h-12 rounded-md object-cover"

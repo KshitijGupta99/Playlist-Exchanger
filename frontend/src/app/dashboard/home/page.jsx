@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function HomePage() {
@@ -82,7 +83,7 @@ export default function HomePage() {
             isSelected ? "border-blue-500" : "border-transparent"
           }`}
         >   
-          <img
+          <Image
             src={image}
             alt="Playlist Cover"
             className="w-16 h-16 rounded-lg object-cover"

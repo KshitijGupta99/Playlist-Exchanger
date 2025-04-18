@@ -27,7 +27,6 @@ class ConverterController {
                 let result;
                 if (playlist.platform === "spotify") {
                     // Converting from Spotify to YouTube
-                    console.log("first");
                     result = yield this.convertSpotifyToYouTube(playlist.name, playlist.id, spotifyToken, youtubeToken);
                 }
                 else {
@@ -50,7 +49,6 @@ class ConverterController {
             const playlistTitle = `${title} (Converted from Spotify - ${Date.now()})`;
             const playlistId = yield services_1.ConverterService.createYouTubePlaylist(playlistTitle, youtubeToken);
             for (const track of tracks) {
-                console.log(track);
                 const query = track;
                 yield services_1.ConverterService.searchAndAddToYoutube(query, playlistId, youtubeToken);
             }
@@ -58,7 +56,6 @@ class ConverterController {
         });
         this.convertYouTubeToSpotify = (title, youtubePlaylistId, youtubeToken, spotifyToken) => __awaiter(this, void 0, void 0, function* () {
             const videos = yield services_1.ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
-            console.log(videos);
             const playlistName = `${title} (Converted from YouTube - ${Date.now()})`;
             const playlistId = yield services_1.ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
             for (const video of videos) {

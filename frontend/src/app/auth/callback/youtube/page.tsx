@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SpotifyCallback() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     console.log("Youtube Callback Page Loaded");
@@ -25,7 +24,6 @@ export default function SpotifyCallback() {
           .then((data) => {
             console.log("✅ Youtube Response:", data);
             if (data.access_token) {
-              setUser(data.user);
               localStorage.setItem("youtubeuser", JSON.stringify(data.user));
               localStorage.setItem("access_token_youtube", JSON.stringify(data.access_token));
 

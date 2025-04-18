@@ -1,6 +1,7 @@
 "use client";
 
 import SpotifyButton from "@/components/ButtonSpotifyLogin";
+import Image from "next/image";
 import React, { useState } from "react";
 
 export default function DashboardPage() {
@@ -46,12 +47,12 @@ export default function DashboardPage() {
 
                 {playlists.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {playlists.map((playlist: any) => (
+                        {playlists.map((playlist) => (
                             <div
                                 key={playlist.id}
                                 className="bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-hidden"
                             >
-                                <img
+                                <Image
                                     src={playlist.snippet.thumbnails.default.url}
                                     alt="Playlist Thumbnail"
                                     className="w-full h-40 object-cover"
