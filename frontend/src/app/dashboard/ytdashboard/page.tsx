@@ -5,6 +5,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 
 export default function DashboardPage() {
+    const url = process.env.NEXT_PUBLIC_BACKEND_URI
     const [playlists, setPlaylists] = useState([]);
 
     const getPlaylist = async () => {
@@ -16,7 +17,7 @@ export default function DashboardPage() {
         }
         console.log("Access Token:", accessToken);
 
-        const res = await fetch("http://localhost:5000/v1/playlist/youtube", {
+        const res = await fetch(`${url}/v1/playlist/youtube`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

@@ -1,7 +1,9 @@
 "use client";
 const YTButton = () => {
+  const url = process.env.NEXT_PUBLIC_BACKEND_URI
+  console.log(url);
   const signIn = async () => {
-    const res = await fetch("http://localhost:5000/v1/auth/youtube", {
+    const res = await fetch(`${url}/v1/auth/youtube`, {
       method: "GET",
       headers: {
           "Content-Type": "application/json",

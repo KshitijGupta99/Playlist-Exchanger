@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 
 export default function SpotifyCallback() {
   const router = useRouter();
+  const url = process.env.NEXT_PUBLIC_BACKEND_URI
+
 
   useEffect(() => {
     console.log("Youtube Callback Page Loaded");
@@ -15,7 +17,7 @@ export default function SpotifyCallback() {
     console.log("🎟️ Authorization Code:", code);
     if (code) {
       try {
-        fetch("http://localhost:5000/v1/auth/youtube", {
+        fetch(`${url}/v1/auth/youtube`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code }),

@@ -29,6 +29,7 @@ interface SpotifyPlaylistResponse {
 }
 
 export default function Dashboard() {
+  const url = process.env.NEXT_PUBLIC_BACKEND_URI
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [playlist, setplaylist] = useState<SpotifyPlaylistResponse>(null);
   const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
@@ -40,7 +41,7 @@ export default function Dashboard() {
     if (!user.id) return;
     const rawToken = localStorage.getItem("access_token");
     const accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
-    fetch("http://localhost:5000/v1/playlist/spotify", {
+    fetch(`${url}/v1/playlist/spotify`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

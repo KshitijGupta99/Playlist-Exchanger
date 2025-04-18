@@ -1,7 +1,8 @@
 "use client";
 const SpotifyButton = () => {
+  const url = process.env.NEXT_PUBLIC_BACKEND_URI
   const signIn = async () => {
-    const res = await fetch("http://localhost:5000/v1/auth/spotify", {
+    const res = await fetch(`${url}/v1/auth/spotify`, {
       method: "GET",
       headers: {
           "Content-Type": "application/json",

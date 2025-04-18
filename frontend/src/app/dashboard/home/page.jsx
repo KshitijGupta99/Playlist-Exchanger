@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function HomePage() {
+  const url = process.env.NEXT_PUBLIC_BACKEND_URI;
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
   const [youtubePlaylists, setYoutubePlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
@@ -15,7 +16,7 @@ export default function HomePage() {
     const Spotify_accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
 
     // Fetch Spotify playlists
-    fetch("http://localhost:5000/v1/playlist/spotify", {
+    fetch(`${url}/v1/playlist/spotify`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +30,7 @@ export default function HomePage() {
       });
 
     // Fetch YouTube playlists
-    fetch("http://localhost:5000/v1/playlist/youtube", {
+    fetch(`${url}/v1/playlist/youtube`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export default function HomePage() {
     const from = selectedPlaylist.platform;
     const to = from === "spotify" ? "youtube" : "spotify";
 
-    const res = await fetch("http://localhost:5000/v1/playlist/convert", {
+    const res = await fetch(`${url}/v1/playlist/convert`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,10 +69,9 @@ export default function HomePage() {
         selectedPlaylist?.id === p.id &&
         selectedPlaylist?.platform === platform;
       const title = p.name || p.snippet?.title || "Untitled";
+      console.log(p);
       const image =
-        p.images?.[0]?.url ||
-        p.snippet?.thumbnails?.default?.url ||
-        "https://via.placeholder.com/150";
+        p.images?.[0]?.url || p.snippet?.thumbnails?.default?.url || null;
       const url =
         p.external_urls?.spotify || p.snippet?.thumbnails?.default?.url || "#";
 
@@ -82,12 +82,17 @@ export default function HomePage() {
           className={`flex items-center gap-4 bg-white/90 backdrop-blur rounded-xl p-4 border-2 transition-all duration-200 shadow hover:shadow-md hover:bg-white/95 cursor-pointer ${
             isSelected ? "border-blue-500" : "border-transparent"
           }`}
-        >   
-          <Image
-            src={image}
-            alt="Playlist Cover"
-            className="w-16 h-16 rounded-lg object-cover"
-          />
+        >
+          {image !== null && (
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+              <Image
+                src={image}
+                alt="Playlist Cover"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
           <div className="flex-1">
             <a
               href={url}
