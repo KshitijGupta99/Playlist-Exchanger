@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 
 export default function HomePage() {
@@ -45,7 +46,7 @@ export default function HomePage() {
     if (!selectedPlaylist) return;
     const from = selectedPlaylist.platform;
     const to = from === "spotify" ? "youtube" : "spotify";
-    
+
     const res = await fetch("http://localhost:5000/v1/playlist/convert", {
       method: "POST",
       headers: {
@@ -76,34 +77,22 @@ export default function HomePage() {
       return (
         <div
           key={p.id}
-          className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer p-4 flex gap-4 items-center border-2 ${
-            isSelected ? "border-blue-500 " : "border-transparent"
-          } bg-gray-50 hover:bg-gray-100`}
-          style={{
-            backgroundColor: isSelected ? "#e0f7fa" : "white",
-            marginBottom: "1rem",
-            display: "flex",
-            alignItems: "center",
-          }}
-          onClick={() => {
-            console.log(selectedPlaylist);
-            setSelectedPlaylist({ ...p, platform });
-          }}
+          onClick={() => setSelectedPlaylist({ ...p, platform })}
+          className={`flex items-center gap-4 bg-white/90 backdrop-blur rounded-xl p-4 border-2 transition-all duration-200 shadow hover:shadow-md hover:bg-white/95 cursor-pointer ${
+            isSelected ? "border-blue-500" : "border-transparent"
+          }`}
         >
           <img
             src={image}
             alt="Playlist Cover"
-            className="w-16 h-16 rounded object-cover"
-            height={80}
-            width={80}
-            style={{ borderRadius: "0.5rem", marginRight: "1rem" }}
+            className="w-16 h-16 rounded-lg object-cover"
           />
           <div className="flex-1">
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg font-medium text-blue-600 hover:underline"
+              className="text-lg font-semibold text-blue-600 hover:underline"
             >
               {title}
             </a>
@@ -113,46 +102,49 @@ export default function HomePage() {
     });
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+    <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100">
+      <h2 className="text-4xl font-extrabold text-center mb-12 text-gray-800 drop-shadow">
         🎵 Playlist Exchanger
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>
-          <h3 className="text-xl font-semibold mb-4 text-green-700">
+          <h3 className="text-2xl font-bold text-green-700 mb-6">
             Spotify Playlists
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             {renderPlaylists(spotifyPlaylists, "spotify")}
           </div>
         </div>
+
         <div>
-          <h3 className="text-xl font-semibold mb-4 text-red-700">
+          <h3 className="text-2xl font-bold text-red-700 mb-6">
             YouTube Playlists
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             {renderPlaylists(youtubePlaylists, "youtube")}
           </div>
         </div>
       </div>
 
       {selectedPlaylist && (
-        <div className="mt-10 bg-white p-6 rounded-xl shadow-lg text-center">
-          <p className="text-lg font-semibold mb-2">
-            Selected:{" "}
-            <span className="text-blue-600 font-bold">
-              {selectedPlaylist.name || selectedPlaylist.snippet?.title}
-            </span>{" "}
-            from <strong>{selectedPlaylist.platform}</strong>
-          </p>
-          <button
-            onClick={handleConvert}
-            className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold px-6 py-2 mt-3 rounded-lg"
-          >
-            Convert to{" "}
-            {selectedPlaylist.platform === "spotify" ? "YouTube" : "Spotify"}
-          </button>
+        <div className="mt-14 text-center">
+          <div className="inline-block bg-white shadow-lg rounded-xl p-6">
+            <p className="text-lg font-medium mb-4 text-gray-700">
+              Selected Playlist:
+              <span className="text-blue-600 font-bold ml-1">
+                {selectedPlaylist.name || selectedPlaylist.snippet?.title}
+              </span>{" "}
+              from <strong>{selectedPlaylist.platform}</strong>
+            </p>
+            <button
+              onClick={handleConvert}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
+            >
+              Convert to{" "}
+              {selectedPlaylist.platform === "spotify" ? "YouTube" : "Spotify"}
+            </button>
+          </div>
         </div>
       )}
     </div>

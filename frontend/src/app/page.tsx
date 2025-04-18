@@ -1,16 +1,18 @@
-"use client"
-import { useSession } from "next-auth/react";
-import Image from "next/image";
+"use client";
 import SpotifyButton from "@/components/ButtonSpotifyLogin";
 import YTButton from "@/components/ButtonYTLogin";
-// import './global.css';
-export default function Home() {
 
+export default function Home() {
   return (
-    <div>
-      <h1>basic home page</h1>
-      <div><SpotifyButton /> </div>
-      <div><YTButton/></div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
+      <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-10 text-center space-y-8">
+        <h1 className="text-4xl font-bold text-gray-800">Welcome to Playlist Exchanger 🎵</h1>
+
+        <div className="flex flex-col gap-4 items-center">
+          <SpotifyButton />
+          <YTButton />
+        </div>
+      </div>
     </div>
   );
 }
