@@ -81,7 +81,7 @@ export default function HomePage() {
           className={`flex items-center gap-4 bg-white/90 backdrop-blur rounded-xl p-4 border-2 transition-all duration-200 shadow hover:shadow-md hover:bg-white/95 cursor-pointer ${
             isSelected ? "border-blue-500" : "border-transparent"
           }`}
-        >
+        >   
           <img
             src={image}
             alt="Playlist Cover"
