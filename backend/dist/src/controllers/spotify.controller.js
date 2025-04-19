@@ -16,6 +16,7 @@ class SpotifyController {
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const authUrl = services_1.SpotifyService.getAuthUrl();
             try {
+                console.log(authUrl);
                 const scope = "playlist-read-private playlist-modify-public";
                 // Fetch the authorization page from your backend
                 const response = yield fetch(authUrl, {
@@ -66,6 +67,7 @@ class SpotifyController {
             }
         });
         this.SpotifyService = new services_1.SpotifyService();
+        console.log("controller called");
     }
 }
 exports.default = SpotifyController;
