@@ -53,6 +53,9 @@ class ConverterController {
         });
         this.convertYouTubeToSpotify = (title, youtubePlaylistId, youtubeToken, spotifyToken) => __awaiter(this, void 0, void 0, function* () {
             const videos = yield services_1.ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
+            if (!videos || videos.length === 0) {
+                return { success: false, message: "No videos found in YouTube playlist" };
+            }
             const playlistName = `${title} (Converted from YouTube - ${Date.now()})`;
             const playlistId = yield services_1.ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
             for (const video of videos) {

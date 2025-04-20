@@ -1,236 +1,192 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import { response } from "express";
 
 dotenv.config();
 
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
-  process.env;
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
+
+if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REDIRECT_URI) {
+  throw new Error("Missing required Spotify environment variables");
+}
 
 class ConverterService {
-
-  static async getSpotifyTracks(playlistId, token) {
+  // Fetch tracks from a Spotify playlist
+  static async getSpotifyTracks(playlistId: string, token: string): Promise<string[]> {
     try {
-      const res = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      const res = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) {
-        throw new Error("Failed to fetch Spotify tracks");
-      }
-      const data = await res.json();
-      return data.items.map((item) => {
+
+      return res.data.items.map((item: any) => {
         const track = item.track;
-        return `${track.name} ${track.artists.map((a) => a.name).join(" ")}`;
+        return `${track.name} ${track.artists.map((a: any) => a.name).join(" ")}`;
       });
-    } catch (error) {
-      console.error("Error fetching Spotify tracks:", error);
-      throw error;
-
+    } catch (error: any) {
+      console.error("Error fetching Spotify tracks:", error.response?.data || error.message);
+      throw new Error("Failed to fetch Spotify tracks");
     }
-
-
   }
 
-
-  static async createYouTubePlaylist(title: String, token) {
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/playlists?part=snippet,status`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        snippet: {
-          title: title,
-          description: "Converted from Spotify",
-        },
-        status: { privacyStatus: "private" },
-      }),
-    });
-    const data = await res.json();
-    return data.id;
-  }
-
-  // services/conversionService.js
-
-  static async searchAndAddToYoutube(track, playlistId, youtubeAccessToken) {
+  // Create a YouTube playlist
+  static async createYouTubePlaylist(title: string, token: string): Promise<string> {
     try {
-      // Search for the track on YouTube
-      const query = track;
-      const searchRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-          query
-        )}&type=video&maxResults=1`,
+      const res = await axios.post(
+        `https://www.googleapis.com/youtube/v3/playlists?part=snippet,status`,
+        {
+          snippet: {
+            title,
+            description: "Converted from Spotify",
+          },
+          status: { privacyStatus: "private" },
+        },
         {
           headers: {
-            Authorization: `Bearer ${youtubeAccessToken}`,
-            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
 
-      const searchData = await searchRes.json();
+      return res.data.id;
+    } catch (error: any) {
+      console.error("Error creating YouTube playlist:", error.response?.data || error.message);
+      throw new Error("Failed to create YouTube playlist");
+    }
+  }
+
+  // Search and add a track to a YouTube playlist
+  static async searchAndAddToYoutube(track: string, playlistId: string, youtubeAccessToken: string): Promise<void> {
+    try {
+      const searchRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(track)}&type=video&maxResults=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${youtubeAccessToken}`,
+          },
+        }
+      );
+
+      const searchData = searchRes.data;
       if (!searchData.items || searchData.items.length === 0) {
-        console.warn(`❌ No result found for: ${query}`);
+        console.warn(`❌ No result found for: ${track}`);
         return;
       }
-      console.log(`✅ Found video for ${query}:`, searchData.items[0].snippet.title);
+
       const videoId = searchData.items[0].id.videoId;
 
-      // Add the found video to the playlist
-      const insertRes = await fetch(
+      await axios.post(
         `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet`,
         {
-          method: "POST",
+          snippet: {
+            playlistId,
+            resourceId: {
+              kind: "youtube#video",
+              videoId,
+            },
+          },
+        },
+        {
           headers: {
             Authorization: `Bearer ${youtubeAccessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            snippet: {
-              playlistId,
-              resourceId: {
-                kind: "youtube#video",
-                videoId,
-              },
-            },
-          }),
         }
       );
 
-      const insertData = await insertRes.json();
-      if (insertRes.ok) {
-        console.log(`✅ Added ${query} to YouTube playlist`);
-      } else {
-        console.error("❌ Failed to add to playlist:", insertData);
-      }
-    } catch (err) {
-      console.error("❌ Error in searchAndAddToYouTubePlaylist:", err);
+      console.log(`✅ Added ${track} to YouTube playlist`);
+    } catch (error: any) {
+      console.error("❌ Error in searchAndAddToYoutube:", error.response?.data || error.message);
+      throw new Error("Failed to add track to YouTube playlist");
     }
   }
 
-  static async getYoutubeVideos(playlistId, token){
+  // Fetch videos from a YouTube playlist
+  static async getYoutubeVideos(playlistId: string, token: string): Promise<{ title: string; id: string }[]> {
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
-      if(!res.ok) {
-        throw new Error("Failed to fetch Youtube videos");
-      }
-      
-      if (res.status === 404) {
-        throw new Error("Playlist not found");
-      }
-      if (res.status === 403) {
-        throw new Error("Access forbidden to the playlist");
-      }
-      if (res.status === 401) {
-        throw new Error("Unauthorized access to the playlist");
-      }
-      if (res.status === 500) {
-        throw new Error("Internal server error while fetching playlist items");
-      }
-      if (res.status === 429) {
-        throw new Error("Quota exceeded for YouTube API requests");
-      }
-      if (res.status === 400) {
-        throw new Error("Bad request to YouTube API");
-      }
-      if (res.status === 408) {
-        throw new Error("Request timeout while fetching playlist items");
-      }
-      const data = await res.json();
+      const res = await axios.get(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      if (!data.items || data.items.length === 0) {
+      if (!res.data.items || res.data.items.length === 0) {
         throw new Error("No videos found in the playlist");
       }
 
-      return data.items.map((item) => {
+      return res.data.items.map((item: any) => {
         const video = item.snippet;
-        return `${video.title} ${video.channelTitle}`;
-      }
-      );
-    } catch (error) {
-      console.error("Error fetching YouTube videos:", error);
-      throw error;
-    }
-  };
-
-  static async createSpotifyPlaylist(title, token) {
-    try {
-      const res = await fetch(`https://api.spotify.com/v1/me/playlists`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: title,
-          public: false,
-        }),
+        return { title: video.title, id: item.id };
       });
-      if (!res.ok) {
-        throw new Error("Failed to create Spotify playlist");
-      }
-      const data = await res.json();
-      return data.id;
-    } catch (error) {
-      console.error("Error creating Spotify playlist:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("Error fetching YouTube videos:", error.response?.data || error.message);
+      throw new Error("Failed to fetch YouTube videos");
     }
   }
 
-
-  static async searchAndAddToSpotify(track, playlistId, spotifyAccessToken) {
+  // Create a Spotify playlist
+  static async createSpotifyPlaylist(title: string, token: string): Promise<string> {
     try {
-      // Search for the track on Spotify
-      const query = track;
-      const searchRes = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-          query
-        )}&type=track&limit=1`,
+      const res = await axios.post(
+        `https://api.spotify.com/v1/me/playlists`,
+        {
+          name: title,
+          public: false,
+        },
         {
           headers: {
-            Authorization: `Bearer ${spotifyAccessToken}`,
-            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
 
-      const searchData = await searchRes.json();
+      return res.data.id;
+    } catch (error: any) {
+      console.error("Error creating Spotify playlist:", error.response?.data || error.message);
+      throw new Error("Failed to create Spotify playlist");
+    }
+  }
+
+  // Search and add a track to a Spotify playlist
+  static async searchAndAddToSpotify(track: string, playlistId: string, spotifyAccessToken: string): Promise<void> {
+    try {
+      const searchRes = await axios.get(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(track)}&type=track&limit=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${spotifyAccessToken}`,
+          },
+        }
+      );
+
+      const searchData = searchRes.data;
       if (!searchData.tracks || searchData.tracks.items.length === 0) {
-        console.warn(`❌ No result found for: ${query}`);
+        console.warn(`❌ No result found for: ${track}`);
         return;
       }
-      console.log(`✅ Found track for ${query}:`, searchData.tracks.items[0].name);
+
       const trackId = searchData.tracks.items[0].id;
 
-      // Add the found track to the playlist
-      const insertRes = await fetch(
+      await axios.post(
         `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
         {
-          method: "POST",
+          uris: [`spotify:track:${trackId}`],
+        },
+        {
           headers: {
             Authorization: `Bearer ${spotifyAccessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            uris: [`spotify:track:${trackId}`],
-          }),
         }
       );
 
-      const insertData = await insertRes.json();
-      if (insertRes.ok) {
-        console.log(`✅ Added ${query} to Spotify playlist`);
-      } else {
-        console.error("❌ Failed to add to playlist:", insertData);
-      }
-    } catch (err) {
-      console.error("❌ Error in searchAndAddToSpotifyPlaylist:", err);
+      console.log(`✅ Added ${track} to Spotify playlist`);
+    } catch (error: any) {
+      console.error("❌ Error in searchAndAddToSpotify:", error.response?.data || error.message);
+      throw new Error("Failed to add track to Spotify playlist");
     }
   }
-
 }
 
 export default ConverterService;

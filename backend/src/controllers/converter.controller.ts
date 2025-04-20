@@ -97,6 +97,9 @@ class ConverterController {
     ): Promise<{ success: boolean; message: string; playlistId?: string }> => {
         const videos = await ConverterService.getYoutubeVideos(youtubePlaylistId, youtubeToken);
 
+        if (!videos || videos.length === 0) {
+            return { success: false, message: "No videos found in YouTube playlist" };
+        }
         const playlistName = `${title} (Converted from YouTube - ${Date.now()})`;
         const playlistId = await ConverterService.createSpotifyPlaylist(playlistName, spotifyToken);
 

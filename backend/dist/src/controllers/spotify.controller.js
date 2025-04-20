@@ -16,7 +16,6 @@ if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REDIRECT_URI) {
 }
 class SpotifyController {
     constructor() {
-        // Generate Spotify login URL
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const authUrl = services_1.SpotifyService.getAuthUrl();
@@ -33,7 +32,7 @@ class SpotifyController {
             try {
                 const code = req.body.code;
                 if (!code) {
-                    return res.status(400).json({ error: "Authorization code missing!" });
+                    res.status(400).json({ error: "Authorization code missing!" });
                 }
                 const { access_token, user } = yield services_1.SpotifyService.exchangeCodeForToken(code);
                 console.log("Spotify Access Token:", access_token);
@@ -50,9 +49,13 @@ class SpotifyController {
             try {
                 const authHeader = req.headers.authorization;
                 if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    return res.status(401).json({ error: "Unauthorized" });
+                    res.status(401).json({ error: "Unauthorized" });
                 }
-                const accessToken = authHeader.split(" ")[1];
+                const accessToken = authHeader === null || authHeader === void 0 ? void 0 : authHeader.split(" ")[1];
+                if (!accessToken) {
+                    res.status(401).json({ error: "Unauthorized" });
+                    return;
+                }
                 console.log("Spotify Access Token:", accessToken);
                 const playlists = yield services_1.SpotifyService.getUserPlaylists(accessToken);
                 res.status(200).json(playlists);

@@ -6,6 +6,7 @@ dotenv.config();
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
   process.env;
 
+
 class SpotifyService {
   static getAuthUrl(): string {
     const scopes = "playlist-read-private playlist-modify-public playlist-modify-private";
