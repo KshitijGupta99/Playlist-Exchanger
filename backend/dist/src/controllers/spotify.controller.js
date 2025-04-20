@@ -11,63 +11,59 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = require("../services");
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
+if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REDIRECT_URI) {
+    throw new Error("Missing required Spotify environment variables");
+}
 class SpotifyController {
     constructor() {
+        // Generate Spotify login URL
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const authUrl = services_1.SpotifyService.getAuthUrl();
             try {
-                console.log(authUrl);
-                const scope = "playlist-read-private playlist-modify-public";
-                // Fetch the authorization page from your backend
-                const response = yield fetch(authUrl, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                // Forward the response to the frontend
-                res.json({ url: response.url });
+                const authUrl = services_1.SpotifyService.getAuthUrl();
+                console.log("Generated Spotify Auth URL:", authUrl);
+                res.status(200).json({ url: authUrl });
             }
             catch (error) {
-                console.error("Error fetching Spotify auth URL:", error);
-                res.status(500).json({ error: "Failed to generate auth URL" });
+                console.error("Error generating Spotify auth URL:", error);
+                res.status(500).json({ error: "Failed to generate Spotify auth URL" });
             }
         });
+        // Handle Spotify OAuth callback
         this.callback = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const code = req.body.code;
-                console.log("Authorization Code:", code);
                 if (!code) {
                     return res.status(400).json({ error: "Authorization code missing!" });
                 }
                 const { access_token, user } = yield services_1.SpotifyService.exchangeCodeForToken(code);
-                console.log("Access Token:", access_token);
-                console.log("User Data:", user);
+                console.log("Spotify Access Token:", access_token);
+                console.log("Spotify User Data:", user);
                 res.status(200).json({ access_token, user });
             }
             catch (error) {
-                console.error("Spotify Auth Error:", error);
+                console.error("Spotify Auth Error:", error.message || error);
                 res.status(500).json({ error: error.message || "Authentication failed" });
             }
         });
+        // Fetch Spotify playlists
         this.getPlayList = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
-                const accessToken = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]; // Extract token
-                if (!accessToken) {
+                const authHeader = req.headers.authorization;
+                if (!authHeader || !authHeader.startsWith("Bearer ")) {
                     return res.status(401).json({ error: "Unauthorized" });
                 }
-                console.log("Access Token:", accessToken);
+                const accessToken = authHeader.split(" ")[1];
+                console.log("Spotify Access Token:", accessToken);
                 const playlists = yield services_1.SpotifyService.getUserPlaylists(accessToken);
                 res.status(200).json(playlists);
             }
             catch (error) {
-                console.error("Error fetching playlists:", error);
+                console.error("Error fetching Spotify playlists:", error.message || error);
                 res.status(500).json({ error: error.message || "Failed to fetch playlists" });
             }
         });
         this.SpotifyService = new services_1.SpotifyService();
-        console.log("controller called");
+        console.log("SpotifyController initialized");
     }
 }
 exports.default = SpotifyController;
