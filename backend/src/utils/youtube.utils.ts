@@ -90,4 +90,3 @@ export const createSpotifyPlaylist = async (name: string, trackNames: string[]):
     throw new Error("Failed to create Spotify playlist");
   }
 };
-
