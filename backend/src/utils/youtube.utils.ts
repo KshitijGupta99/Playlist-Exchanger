@@ -83,7 +83,6 @@ export const createSpotifyPlaylist = async (name: string, trackNames: string[]):
         },
       }
     );
-
     return `https://open.spotify.com/playlist/${playlistId}`;
   } catch (error: any) {
     console.error("Error creating Spotify playlist:", error.response?.data || error.message);
