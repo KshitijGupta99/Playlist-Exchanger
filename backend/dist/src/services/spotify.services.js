@@ -16,6 +16,9 @@ const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
+if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REDIRECT_URI) {
+    throw new Error("Missing required Spotify environment variables");
+}
 class SpotifyService {
     static getAuthUrl() {
         const scopes = "playlist-read-private playlist-modify-public playlist-modify-private";
@@ -23,6 +26,9 @@ class SpotifyService {
     }
     static exchangeCodeForToken(code) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!code) {
+                throw new Error("Authorization code is missing!");
+            }
             if (!SPOTIFY_REDIRECT_URI || !SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
                 throw new Error("Missing Spotify environment variables");
             }
@@ -36,16 +42,25 @@ class SpotifyService {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
             const { access_token } = response.data;
+            if (!access_token) {
+                throw new Error("Access token is missing in the response!");
+            }
             // Fetch user data using the access token
             const userResponse = yield axios_1.default.get("https://api.spotify.com/v1/me", {
                 headers: { Authorization: `Bearer ${access_token}` },
             });
+            if (!userResponse.data) {
+                throw new Error("User data is missing in the response!");
+            }
             return { access_token, user: userResponse.data };
         });
     }
     static getUserPlaylists(access_token) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
+            if (!access_token) {
+                throw new Error("Access token is missing!");
+            }
             try {
                 const response = yield axios_1.default.get("https://api.spotify.com/v1/me/playlists", {
                     headers: {
