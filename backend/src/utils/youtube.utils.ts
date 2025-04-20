@@ -1,62 +1,93 @@
-const fetch = require("node-fetch");
+import axios from "axios";
+import dotenv from "dotenv";
 
-const YOUTUBE_TOKEN = process.env.YOUTUBE_TOKEN;
+dotenv.config();
 
-exports.getYouTubeTracks = async (playlistId) => {
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50`, {
-    headers: { Authorization: `Bearer ${YOUTUBE_TOKEN}` }
-  });
+const { YOUTUBE_TOKEN, SPOTIFY_TOKEN, SPOTIFY_USER_ID } = process.env;
 
-  const data = await res.json();
+if (!YOUTUBE_TOKEN || !SPOTIFY_TOKEN || !SPOTIFY_USER_ID) {
+  throw new Error("Missing required environment variables: YOUTUBE_TOKEN, SPOTIFY_TOKEN, or SPOTIFY_USER_ID");
+}
 
-  return data.items.map(item => item.snippet.title);
+// Fetch tracks from a YouTube playlist
+export const getYouTubeTracks = async (playlistId: string): Promise<string[]> => {
+  try {
+    const res = await axios.get(
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50`,
+      {
+        headers: { Authorization: `Bearer ${YOUTUBE_TOKEN}` },
+      }
+    );
+
+    const data = res.data;
+
+    if (!data.items || data.items.length === 0) {
+      throw new Error("No tracks found in the YouTube playlist");
+    }
+
+    return data.items.map((item: any) => item.snippet.title);
+  } catch (error: any) {
+    console.error("Error fetching YouTube tracks:", error.response?.data || error.message);
+    throw new Error("Failed to fetch YouTube tracks");
+  }
 };
 
+// Create a Spotify playlist and add tracks
+export const createSpotifyPlaylist = async (name: string, trackNames: string[]): Promise<string> => {
+  try {
+    // 1. Create Spotify playlist
+    const createRes = await axios.post(
+      `https://api.spotify.com/v1/users/${SPOTIFY_USER_ID}/playlists`,
+      {
+        name: name,
+        description: "Converted from YouTube",
+        public: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${SPOTIFY_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-const SPOTIFY_TOKEN = process.env.SPOTIFY_TOKEN;
-const SPOTIFY_USER_ID = process.env.SPOTIFY_USER_ID;
+    const playlistId = createRes.data.id;
 
-exports.createSpotifyPlaylist = async (name, trackNames) => {
-  // 1. Create Spotify playlist
-  const createRes = await fetch(`https://api.spotify.com/v1/users/${SPOTIFY_USER_ID}/playlists`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${SPOTIFY_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: name,
-      description: "Converted from YouTube",
-      public: false,
-    }),
-  });
+    if (!playlistId) {
+      throw new Error("Failed to create Spotify playlist");
+    }
 
-  const createData = await createRes.json();
-  const playlistId = createData.id;
+    const uris: string[] = [];
 
-  const uris = [];
+    // 2. Search each track and collect URIs
+    for (const query of trackNames) {
+      const searchRes = await axios.get(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+        {
+          headers: { Authorization: `Bearer ${SPOTIFY_TOKEN}` },
+        }
+      );
 
-  // 2. Search each track and collect URIs
-  for (const query of trackNames) {
-    const searchRes = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`, {
-      headers: { Authorization: `Bearer ${SPOTIFY_TOKEN}` },
-    });
+      const uri = searchRes.data.tracks?.items?.[0]?.uri;
+      if (uri) uris.push(uri);
+    }
 
-    const searchData = await searchRes.json();
-    const uri = searchData.tracks?.items?.[0]?.uri;
-    if (uri) uris.push(uri);
+    // 3. Add all found tracks to the new playlist
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      { uris },
+      {
+        headers: {
+          Authorization: `Bearer ${SPOTIFY_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return `https://open.spotify.com/playlist/${playlistId}`;
+  } catch (error: any) {
+    console.error("Error creating Spotify playlist:", error.response?.data || error.message);
+    throw new Error("Failed to create Spotify playlist");
   }
-
-  // 3. Add all found tracks to the new playlist
-  await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${SPOTIFY_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ uris }),
-  });
-
-  return `https://open.spotify.com/playlist/${playlistId}`;
 };
 
