@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-
+ 
 export default function HomePage() {
   const url = process.env.NEXT_PUBLIC_BACKEND_URI;
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
