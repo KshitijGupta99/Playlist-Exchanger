@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: playlist-exchanger-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
