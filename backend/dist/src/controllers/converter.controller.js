@@ -13,7 +13,7 @@ const services_1 = require("../services");
 class ConverterController {
     constructor() {
         this.convert = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             try {
                 const playlist = req.body;
                 const spotifyRawToken = req.headers["spotify-token"];
@@ -50,10 +50,30 @@ class ConverterController {
             }
             catch (err) {
                 const error = err;
-                const upstreamMessage = (_d = (_c = (_b = error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.error) === null || _d === void 0 ? void 0 : _d.message;
-                console.error("❌ Conversion Error:", upstreamMessage || error.message || err);
-                res.status(((_e = error.response) === null || _e === void 0 ? void 0 : _e.status) && error.response.status >= 400 ? 502 : 500).json({
-                    error: upstreamMessage || error.message || "Server error during conversion",
+                const upstreamError = (_c = (_b = error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.error;
+                const upstreamMessage = typeof upstreamError === "string"
+                    ? upstreamError
+                    : (upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.message) || ((_e = (_d = upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.errors) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.message);
+                const reason = typeof upstreamError === "string"
+                    ? undefined
+                    : (upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.status) || ((_g = (_f = upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.errors) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.reason);
+                const status = (_h = error.response) === null || _h === void 0 ? void 0 : _h.status;
+                console.error("❌ Conversion Error:", {
+                    status,
+                    reason,
+                    message: upstreamMessage || error.message || err,
+                });
+                const detail = reason === "quotaExceeded"
+                    ? "YouTube API quota is exhausted. Enable YouTube Data API quota or try again tomorrow."
+                    : status === 401
+                        ? "One of the access tokens has expired. Sign in to Spotify and YouTube again."
+                        : status === 403
+                            ? "The provider rejected this action. Check the account permissions and API access."
+                            : upstreamMessage || error.message || "Server error during conversion";
+                res.status(((_j = error.response) === null || _j === void 0 ? void 0 : _j.status) && error.response.status >= 400 ? 502 : 500).json({
+                    error: detail,
+                    providerStatus: status,
+                    providerReason: reason,
                 });
             }
         });

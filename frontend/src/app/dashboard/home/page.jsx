@@ -71,7 +71,8 @@ export default function HomePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || `Conversion failed (${res.status})`);
+        const reason = data.providerReason ? ` (${data.providerReason})` : "";
+        throw new Error(`${data.error || `Conversion failed (${res.status})`}${reason}`);
       }
       alert(`Converted to ${to} ✔️`);
     } catch (error) {

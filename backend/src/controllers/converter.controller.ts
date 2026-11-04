@@ -77,12 +77,39 @@ class ConverterController {
         } catch (err) {
             const error = err as {
                 message?: string;
-                response?: { status?: number; data?: { error?: { message?: string } } };
+                response?: {
+                    status?: number;
+                    data?: {
+                        error?: { message?: string; status?: string; errors?: Array<{ reason?: string; message?: string }> } | string;
+                    };
+                };
             };
-            const upstreamMessage = error.response?.data?.error?.message;
-            console.error("❌ Conversion Error:", upstreamMessage || error.message || err);
+            const upstreamError = error.response?.data?.error;
+            const upstreamMessage =
+                typeof upstreamError === "string"
+                    ? upstreamError
+                    : upstreamError?.message || upstreamError?.errors?.[0]?.message;
+            const reason =
+                typeof upstreamError === "string"
+                    ? undefined
+                    : upstreamError?.status || upstreamError?.errors?.[0]?.reason;
+            const status = error.response?.status;
+            console.error("❌ Conversion Error:", {
+                status,
+                reason,
+                message: upstreamMessage || error.message || err,
+            });
+            const detail = reason === "quotaExceeded"
+                ? "YouTube API quota is exhausted. Enable YouTube Data API quota or try again tomorrow."
+                : status === 401
+                    ? "One of the access tokens has expired. Sign in to Spotify and YouTube again."
+                    : status === 403
+                        ? "The provider rejected this action. Check the account permissions and API access."
+                        : upstreamMessage || error.message || "Server error during conversion";
             res.status(error.response?.status && error.response.status >= 400 ? 502 : 500).json({
-                error: upstreamMessage || error.message || "Server error during conversion",
+                error: detail,
+                providerStatus: status,
+                providerReason: reason,
             });
         }
     };
