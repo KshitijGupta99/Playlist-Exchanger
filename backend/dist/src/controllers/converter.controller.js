@@ -58,22 +58,30 @@ class ConverterController {
                     ? undefined
                     : (upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.status) || ((_g = (_f = upstreamError === null || upstreamError === void 0 ? void 0 : upstreamError.errors) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.reason);
                 const status = (_h = error.response) === null || _h === void 0 ? void 0 : _h.status;
+                const operation = error.operation;
                 console.error("❌ Conversion Error:", {
                     status,
                     reason,
+                    operation,
                     message: upstreamMessage || error.message || err,
                 });
                 const detail = reason === "quotaExceeded"
                     ? "YouTube API quota is exhausted. Enable YouTube Data API quota or try again tomorrow."
                     : status === 401
                         ? "One of the access tokens has expired. Sign in to Spotify and YouTube again."
-                        : status === 403
-                            ? "The provider rejected this action. Check the account permissions and API access."
-                            : upstreamMessage || error.message || "Server error during conversion";
+                        : status === 403 && (operation === null || operation === void 0 ? void 0 : operation.startsWith("YouTube"))
+                            ? "YouTube rejected the write. Sign out, connect YouTube again to grant playlist-management access, and verify YouTube Data API v3 is enabled."
+                            : status === 403 && (operation === null || operation === void 0 ? void 0 : operation.startsWith("Spotify"))
+                                ? "Spotify rejected the write. Sign out, connect Spotify again to grant playlist-modify access, and retry the conversion."
+                                : status === 403
+                                    ? "The provider rejected this action. Check the account permissions and API access."
+                                    : upstreamMessage || error.message || "Server error during conversion";
                 res.status(((_j = error.response) === null || _j === void 0 ? void 0 : _j.status) && error.response.status >= 400 ? 502 : 500).json({
                     error: detail,
                     providerStatus: status,
                     providerReason: reason,
+                    providerMessage: upstreamMessage,
+                    operation,
                 });
             }
         });

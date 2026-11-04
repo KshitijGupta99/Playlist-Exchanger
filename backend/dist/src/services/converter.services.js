@@ -37,7 +37,7 @@ class ConverterService {
             }
             catch (error) {
                 console.error("Error fetching Spotify tracks:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-                throw this.upstreamError("Failed to fetch Spotify tracks", error);
+                throw this.upstreamError("Failed to fetch Spotify tracks", error, "Spotify playlist read");
             }
         });
     }
@@ -64,7 +64,7 @@ class ConverterService {
             }
             catch (error) {
                 console.error("Error creating YouTube playlist:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-                throw this.upstreamError("Failed to create YouTube playlist", error);
+                throw this.upstreamError("Failed to create YouTube playlist", error, "YouTube playlist creation");
             }
         });
     }
@@ -106,7 +106,7 @@ class ConverterService {
             }
             catch (error) {
                 console.error("❌ Error in searchAndAddToYoutube:", ((_b = error.response) === null || _b === void 0 ? void 0 : _b.data) || error.message);
-                throw this.upstreamError("Failed to add track to YouTube playlist", error);
+                throw this.upstreamError("Failed to add track to YouTube playlist", error, "YouTube playlist item creation");
             }
         });
     }
@@ -131,7 +131,7 @@ class ConverterService {
             }
             catch (error) {
                 console.error("Error fetching YouTube videos:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-                throw this.upstreamError("Failed to fetch YouTube videos", error);
+                throw this.upstreamError("Failed to fetch YouTube videos", error, "YouTube playlist read");
             }
         });
     }
@@ -155,7 +155,7 @@ class ConverterService {
             }
             catch (error) {
                 console.error("Error creating Spotify playlist:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-                throw this.upstreamError("Failed to create Spotify playlist", error);
+                throw this.upstreamError("Failed to create Spotify playlist", error, "Spotify playlist creation");
             }
         });
     }
@@ -187,13 +187,14 @@ class ConverterService {
             }
             catch (error) {
                 console.error("❌ Error in searchAndAddToSpotify:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-                throw this.upstreamError("Failed to add track to Spotify playlist", error);
+                throw this.upstreamError("Failed to add track to Spotify playlist", error, "Spotify playlist item creation");
             }
         });
     }
-    static upstreamError(message, error) {
+    static upstreamError(message, error, operation) {
         const wrapped = new Error(message);
         wrapped.response = error === null || error === void 0 ? void 0 : error.response;
+        wrapped.operation = operation;
         return wrapped;
     }
 }

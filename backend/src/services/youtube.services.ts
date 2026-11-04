@@ -15,6 +15,7 @@ class YoutubeService {
       response_type: 'code',
       access_type: 'offline',
       prompt: 'consent',
+      include_granted_scopes: 'true',
       scope: [
         'https://www.googleapis.com/auth/youtube.readonly',
         'https://www.googleapis.com/auth/youtube.force-ssl',

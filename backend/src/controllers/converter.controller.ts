@@ -83,6 +83,7 @@ class ConverterController {
                         error?: { message?: string; status?: string; errors?: Array<{ reason?: string; message?: string }> } | string;
                     };
                 };
+                operation?: string;
             };
             const upstreamError = error.response?.data?.error;
             const upstreamMessage =
@@ -94,22 +95,30 @@ class ConverterController {
                     ? undefined
                     : upstreamError?.status || upstreamError?.errors?.[0]?.reason;
             const status = error.response?.status;
+            const operation = error.operation;
             console.error("❌ Conversion Error:", {
                 status,
                 reason,
+                operation,
                 message: upstreamMessage || error.message || err,
             });
             const detail = reason === "quotaExceeded"
                 ? "YouTube API quota is exhausted. Enable YouTube Data API quota or try again tomorrow."
                 : status === 401
                     ? "One of the access tokens has expired. Sign in to Spotify and YouTube again."
-                    : status === 403
-                        ? "The provider rejected this action. Check the account permissions and API access."
-                        : upstreamMessage || error.message || "Server error during conversion";
+                    : status === 403 && operation?.startsWith("YouTube")
+                        ? "YouTube rejected the write. Sign out, connect YouTube again to grant playlist-management access, and verify YouTube Data API v3 is enabled."
+                        : status === 403 && operation?.startsWith("Spotify")
+                            ? "Spotify rejected the write. Sign out, connect Spotify again to grant playlist-modify access, and retry the conversion."
+                        : status === 403
+                            ? "The provider rejected this action. Check the account permissions and API access."
+                            : upstreamMessage || error.message || "Server error during conversion";
             res.status(error.response?.status && error.response.status >= 400 ? 502 : 500).json({
                 error: detail,
                 providerStatus: status,
                 providerReason: reason,
+                providerMessage: upstreamMessage,
+                operation,
             });
         }
     };

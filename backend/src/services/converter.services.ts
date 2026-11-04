@@ -25,7 +25,7 @@ class ConverterService {
         });
     } catch (error: any) {
       console.error("Error fetching Spotify tracks:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to fetch Spotify tracks", error);
+      throw this.upstreamError("Failed to fetch Spotify tracks", error, "Spotify playlist read");
     }
   }
 
@@ -53,7 +53,7 @@ class ConverterService {
       return res.data.id;
     } catch (error: any) {
       console.error("Error creating YouTube playlist:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to create YouTube playlist", error);
+      throw this.upstreamError("Failed to create YouTube playlist", error, "YouTube playlist creation");
     }
   }
 
@@ -103,7 +103,7 @@ class ConverterService {
       console.log(`✅ Added ${track} to YouTube playlist`);
     } catch (error: any) {
       console.error("❌ Error in searchAndAddToYoutube:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to add track to YouTube playlist", error);
+      throw this.upstreamError("Failed to add track to YouTube playlist", error, "YouTube playlist item creation");
     }
   }
 
@@ -129,7 +129,7 @@ class ConverterService {
         });
     } catch (error: any) {
       console.error("Error fetching YouTube videos:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to fetch YouTube videos", error);
+      throw this.upstreamError("Failed to fetch YouTube videos", error, "YouTube playlist read");
     }
   }
 
@@ -154,7 +154,7 @@ class ConverterService {
       return res.data.id;
     } catch (error: any) {
       console.error("Error creating Spotify playlist:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to create Spotify playlist", error);
+      throw this.upstreamError("Failed to create Spotify playlist", error, "Spotify playlist creation");
     }
   }
 
@@ -194,13 +194,18 @@ class ConverterService {
       console.log(`✅ Added ${track} to Spotify playlist`);
     } catch (error: any) {
       console.error("❌ Error in searchAndAddToSpotify:", error.response?.data || error.message);
-      throw this.upstreamError("Failed to add track to Spotify playlist", error);
+      throw this.upstreamError("Failed to add track to Spotify playlist", error, "Spotify playlist item creation");
     }
   }
 
-  private static upstreamError(message: string, error: any): Error & { response?: any } {
-    const wrapped = new Error(message) as Error & { response?: any };
+  private static upstreamError(
+    message: string,
+    error: any,
+    operation: string
+  ): Error & { response?: any; operation?: string } {
+    const wrapped = new Error(message) as Error & { response?: any; operation?: string };
     wrapped.response = error?.response;
+    wrapped.operation = operation;
     return wrapped;
   }
 }

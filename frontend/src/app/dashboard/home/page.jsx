@@ -74,7 +74,10 @@ export default function HomePage() {
       const data = await res.json();
       if (!res.ok) {
         const reason = data.providerReason ? ` (${data.providerReason})` : "";
-        throw new Error(`${data.error || `Conversion failed (${res.status})`}${reason}`);
+        const providerMessage = data.providerMessage && data.providerMessage !== data.error
+          ? `\n\nProvider details: ${data.providerMessage}`
+          : "";
+        throw new Error(`${data.error || `Conversion failed (${res.status})`}${reason}${providerMessage}`);
       }
       alert(`Converted to ${to} ✔️`);
     } catch (error) {
