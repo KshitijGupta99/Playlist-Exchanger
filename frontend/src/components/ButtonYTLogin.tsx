@@ -15,7 +15,7 @@ const YTButton = () => {
 
   return (
     <div>
-      <button className="px-6 py-3 rounded-lg font-semibold transition-all shadow-md text-white w-60 text-center bg-red-600 hover:bg-red-700" onClick={() => signIn()}>Login with Youtube</button>
+      <button className="glass-button w-60 rounded-xl bg-rose-500/80 px-6 py-3 text-center font-semibold text-white" onClick={() => signIn()}>Login with YouTube</button>
     </div>
   );
 };

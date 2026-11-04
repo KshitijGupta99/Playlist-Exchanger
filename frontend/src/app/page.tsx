@@ -4,6 +4,8 @@ import YTButton from "@/components/ButtonYTLogin";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import AppShell from "@/components/AppShell";
+import GlassCard from "@/components/GlassCard";
 
 export default function Home() {
   const router = useRouter();
@@ -17,19 +19,23 @@ export default function Home() {
   }, [hydrated, spotifyToken, youtubeToken, router]);
 
   if (!hydrated || spotifyToken || youtubeToken) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+    return <AppShell className="flex items-center justify-center"><p className="text-muted animate-pulse">Loading your workspace...</p></AppShell>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-10 text-center space-y-8">
-        <h1 className="text-4xl font-bold text-gray-800">Welcome to Playlist Exchanger 🎵</h1>
+    <AppShell className="flex flex-col items-center justify-center">
+      <GlassCard className="w-full max-w-xl space-y-8 p-7 text-center sm:p-10" strong>
+        <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">Playlist Exchanger</p>
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">Your music, beautifully connected <span aria-hidden="true">🎵</span></h1>
+          <p className="text-muted">Move playlists between Spotify and YouTube in a few clicks.</p>
+        </div>
 
         <div className="flex flex-col gap-4 items-center">
           <SpotifyButton />
           <YTButton />
         </div>
-      </div>
-    </div>
+      </GlassCard>
+    </AppShell>
   );
 }

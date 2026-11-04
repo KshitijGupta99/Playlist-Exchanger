@@ -5,6 +5,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import AppShell from "@/components/AppShell";
+import GlassCard from "@/components/GlassCard";
 
 interface SpotifyImage {
   url: string;
@@ -73,17 +75,20 @@ export default function Dashboard() {
   }, [authUser]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 p-6">
-  <div className="max-w-3xl w-full bg-white shadow-xl rounded-2xl p-8 text-center space-y-6">
-    <div className="flex items-center justify-between">
-      <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+    <AppShell className="flex flex-col items-center justify-center">
+  <GlassCard className="w-full max-w-3xl space-y-6 p-6 text-center sm:p-8">
+    <div className="flex items-center justify-between gap-4">
+      <div className="text-left">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300">Spotify space</p>
+        <h1 className="text-4xl font-bold text-white">Dashboard</h1>
+      </div>
       <LogoutButton />
     </div>
 
     {user ? (
       <>
         <div>
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+          <h2 className="mb-2 text-2xl font-semibold text-white">
             Welcome, {user.display_name}
           </h2>
           <Image
@@ -93,30 +98,30 @@ export default function Dashboard() {
             height={100}
             className="mx-auto rounded-full shadow-md"
           />
-          <p className="text-sm text-gray-500 mt-2">Spotify ID: {user.id}</p>
+          <p className="text-muted mt-2 text-sm">Spotify ID: {user.id}</p>
         </div>
 
         <div>
-          <h4 className="text-lg text-gray-700 mb-2">Also, you should log in to YouTube</h4>
+          <h4 className="text-muted mb-2 text-lg">Also, connect YouTube to exchange playlists</h4>
           <YTButton />
         </div>
 
         {!showPlaylist && (
           <button
             onClick={getPlaylist}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-lg transition"
+            className="glass-button rounded-xl bg-emerald-500/80 px-6 py-2 font-medium text-white"
           >
             Get Playlist Data
           </button>
         )}
 
         {playlist && showPlaylist && (
-          <div className="bg-gray-50 p-6 rounded-xl shadow-inner space-y-4 text-left">
+          <div className="glass-card-strong space-y-4 rounded-2xl p-6 text-left">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-800">Your Playlists</h3>
+              <h3 className="text-xl font-semibold text-white">Your Playlists</h3>
               <button
                 onClick={() => setShowPlaylist(false)}
-                className="text-red-600 font-medium hover:underline"
+                className="font-medium text-rose-300 hover:underline"
               >
                 Hide
               </button>
@@ -126,14 +131,14 @@ export default function Dashboard() {
               {playlist.items.map((item: SpotifyPlaylistItem) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-4 bg-white p-3 rounded-lg shadow-sm"
+                  className="playlist-item flex items-center gap-4 rounded-xl p-3"
                 >
                   <Image
                     src={item.images?.[0]?.url}
                     alt="Playlist"
                     className="w-12 h-12 rounded-md object-cover"
                   />
-                  <span className="font-medium text-gray-700">{item.name}</span>
+                  <span className="font-medium text-white">{item.name}</span>
                 </li>
               ))}
             </ul>
@@ -143,8 +148,8 @@ export default function Dashboard() {
     ) : (
       <p className="text-lg text-gray-600">Loading...</p>
     )}
-  </div>
-</div>
+  </GlassCard>
+</AppShell>
 
   );
 }

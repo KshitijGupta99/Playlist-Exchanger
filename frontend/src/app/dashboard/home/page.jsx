@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import LogoutButton from "@/components/LogoutButton";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import GlassCard from "@/components/GlassCard";
  
 export default function HomePage() {
   const url = process.env.NEXT_PUBLIC_BACKEND_URI;
@@ -97,9 +99,8 @@ export default function HomePage() {
         <div
           key={p.id}
           onClick={() => setSelectedPlaylist({ ...p, platform })}
-          className={`flex items-center gap-4 bg-white/90 backdrop-blur rounded-xl p-4 border-2 transition-all duration-200 shadow hover:shadow-md hover:bg-white/95 cursor-pointer ${
-            isSelected ? "border-blue-500" : "border-transparent"
-          }`}
+          className="playlist-item flex cursor-pointer items-center gap-4 rounded-xl p-4"
+          data-selected={isSelected}
         >
           {image !== null && (
             <div className="relative w-16 h-16 rounded-lg overflow-hidden">
@@ -116,7 +117,7 @@ export default function HomePage() {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg font-semibold text-blue-600 hover:underline"
+              className="text-lg font-semibold text-cyan-200 hover:underline"
             >
               {title}
             </a>
@@ -126,15 +127,19 @@ export default function HomePage() {
     });
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100">
-      <div className="mb-12 flex items-center justify-between">
-        <h2 className="text-4xl font-extrabold text-gray-800 drop-shadow">🎵 Playlist Exchanger</h2>
+    <AppShell>
+      <div className="mx-auto max-w-6xl">
+      <div className="mb-10 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">Your library</p>
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Playlist Exchanger <span aria-hidden="true">🎵</span></h2>
+        </div>
         <LogoutButton />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>
-          <h3 className="text-2xl font-bold text-green-700 mb-6">
+          <h3 className="mb-6 text-2xl font-bold text-emerald-300">
             Spotify Playlists
           </h3>
           <div className="flex flex-col gap-5">
@@ -143,7 +148,7 @@ export default function HomePage() {
         </div>
 
         <div>
-          <h3 className="text-2xl font-bold text-red-700 mb-6">
+          <h3 className="mb-6 text-2xl font-bold text-rose-300">
             YouTube Playlists
           </h3>
           <div className="flex flex-col gap-5">
@@ -154,24 +159,25 @@ export default function HomePage() {
 
       {selectedPlaylist && (
         <div className="mt-14 text-center">
-          <div className="inline-block bg-white shadow-lg rounded-xl p-6">
-            <p className="text-lg font-medium mb-4 text-gray-700">
+          <GlassCard className="inline-block p-6" strong>
+            <p className="mb-4 text-lg font-medium text-white">
               Selected Playlist:
-              <span className="text-blue-600 font-bold ml-1">
+              <span className="ml-1 font-bold text-cyan-200">
                 {selectedPlaylist.name || selectedPlaylist.snippet?.title}
               </span>{" "}
               from <strong>{selectedPlaylist.platform}</strong>
             </p>
             <button
               onClick={handleConvert}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
+              className="glass-button rounded-xl bg-cyan-500/80 px-6 py-2 font-semibold text-white"
             >
               Convert to{" "}
               {selectedPlaylist.platform === "spotify" ? "YouTube" : "Spotify"}
             </button>
-          </div>
+          </GlassCard>
         </div>
       )}
-    </div>
+      </div>
+    </AppShell>
   );
 }

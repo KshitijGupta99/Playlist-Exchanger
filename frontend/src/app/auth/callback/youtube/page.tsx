@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { persistAuth } from "@/components/AuthProvider";
+import AppShell from "@/components/AppShell";
+import GlassCard from "@/components/GlassCard";
 
 export default function SpotifyCallback() {
   const router = useRouter();
@@ -47,5 +49,5 @@ export default function SpotifyCallback() {
     }
   }, [router, url]);
 
-  return <h1>Authenticating with Youtube...</h1>;
+  return <AppShell className="flex items-center justify-center"><GlassCard className="px-8 py-10 text-center" strong><p className="animate-pulse text-lg text-rose-100">Connecting to YouTube...</p></GlassCard></AppShell>;
 }

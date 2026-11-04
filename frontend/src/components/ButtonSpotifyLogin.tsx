@@ -15,7 +15,7 @@ const SpotifyButton = () => {
 
   return (
     <div>
-      <button className="px-6 py-3 rounded-lg font-semibold transition-all shadow-md text-white w-60 text-center bg-green-600 hover:bg-green-700" onClick={() => signIn()}>Login with Spotify</button>
+      <button className="glass-button w-60 rounded-xl bg-emerald-500/80 px-6 py-3 text-center font-semibold text-white" onClick={() => signIn()}>Login with Spotify</button>
     </div>
   );
 };
