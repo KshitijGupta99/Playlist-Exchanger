@@ -17,13 +17,15 @@ class ConverterService {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      return res.data.items.map((item: any) => {
-        const track = item.track;
-        return `${track.name} ${track.artists.map((a: any) => a.name).join(" ")}`;
-      });
+      return res.data.items
+        .filter((item: any) => item.track?.name && item.track?.artists?.length)
+        .map((item: any) => {
+          const track = item.track;
+          return `${track.name} ${track.artists.map((a: any) => a.name).join(" ")}`;
+        });
     } catch (error: any) {
       console.error("Error fetching Spotify tracks:", error.response?.data || error.message);
-      throw new Error("Failed to fetch Spotify tracks");
+      throw this.upstreamError("Failed to fetch Spotify tracks", error);
     }
   }
 
@@ -47,10 +49,11 @@ class ConverterService {
         }
       );
 
+      if (!res.data.id) throw new Error("YouTube did not return a playlist ID");
       return res.data.id;
     } catch (error: any) {
       console.error("Error creating YouTube playlist:", error.response?.data || error.message);
-      throw new Error("Failed to create YouTube playlist");
+      throw this.upstreamError("Failed to create YouTube playlist", error);
     }
   }
 
@@ -72,7 +75,11 @@ class ConverterService {
         return;
       }
 
-      const videoId = searchData.items[0].id.videoId;
+      const videoId = searchData.items[0].id?.videoId;
+      if (!videoId) {
+        console.warn(`No video result found for: ${track}`);
+        return;
+      }
 
       await axios.post(
         `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet`,
@@ -96,7 +103,7 @@ class ConverterService {
       console.log(`✅ Added ${track} to YouTube playlist`);
     } catch (error: any) {
       console.error("❌ Error in searchAndAddToYoutube:", error.response?.data || error.message);
-      throw new Error("Failed to add track to YouTube playlist");
+      throw this.upstreamError("Failed to add track to YouTube playlist", error);
     }
   }
 
@@ -114,13 +121,15 @@ class ConverterService {
         throw new Error("No videos found in the playlist");
       }
 
-      return res.data.items.map((item: any) => {
-        const video = item.snippet;
-        return { title: video.title, id: item.id };
-      });
+      return res.data.items
+        .filter((item: any) => item.snippet?.title)
+        .map((item: any) => {
+          const video = item.snippet;
+          return { title: video.title, id: item.snippet.resourceId?.videoId || item.id };
+        });
     } catch (error: any) {
       console.error("Error fetching YouTube videos:", error.response?.data || error.message);
-      throw new Error("Failed to fetch YouTube videos");
+      throw this.upstreamError("Failed to fetch YouTube videos", error);
     }
   }
 
@@ -141,10 +150,11 @@ class ConverterService {
         }
       );
 
+      if (!res.data.id) throw new Error("Spotify did not return a playlist ID");
       return res.data.id;
     } catch (error: any) {
       console.error("Error creating Spotify playlist:", error.response?.data || error.message);
-      throw new Error("Failed to create Spotify playlist");
+      throw this.upstreamError("Failed to create Spotify playlist", error);
     }
   }
 
@@ -184,8 +194,14 @@ class ConverterService {
       console.log(`✅ Added ${track} to Spotify playlist`);
     } catch (error: any) {
       console.error("❌ Error in searchAndAddToSpotify:", error.response?.data || error.message);
-      throw new Error("Failed to add track to Spotify playlist");
+      throw this.upstreamError("Failed to add track to Spotify playlist", error);
     }
+  }
+
+  private static upstreamError(message: string, error: any): Error & { response?: any } {
+    const wrapped = new Error(message) as Error & { response?: any };
+    wrapped.response = error?.response;
+    return wrapped;
   }
 }
 

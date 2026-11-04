@@ -59,18 +59,25 @@ export default function HomePage() {
     const from = selectedPlaylist.platform;
     const to = from === "spotify" ? "youtube" : "spotify";
 
-    const res = await fetch(`${url}/v1/playlist/convert`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "spotify-token": spotifyToken,
-        "youtube-token": youtubeToken,
-      },
-      body: JSON.stringify(selectedPlaylist),
-    });
-
-    const data = await res.json();
-    alert(`Converted to ${to} ✔️`);
+    try {
+      const res = await fetch(`${url}/v1/playlist/convert`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "spotify-token": spotifyToken,
+          "youtube-token": youtubeToken,
+        },
+        body: JSON.stringify(selectedPlaylist),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Conversion failed (${res.status})`);
+      }
+      alert(`Converted to ${to} ✔️`);
+    } catch (error) {
+      console.error("Playlist conversion failed:", error);
+      alert(error.message || "Playlist conversion failed");
+    }
   };
 
   const renderPlaylists = (playlists, platform) =>

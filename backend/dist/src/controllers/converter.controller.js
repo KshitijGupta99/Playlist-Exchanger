@@ -13,32 +13,56 @@ const services_1 = require("../services");
 class ConverterController {
     constructor() {
         this.convert = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e;
             try {
                 const playlist = req.body;
                 const spotifyRawToken = req.headers["spotify-token"];
                 const youtubeRawToken = req.headers["youtube-token"];
-                const spotifyToken = typeof spotifyRawToken === "string" ? spotifyRawToken.replace(/^"|"$/g, '') : null;
-                const youtubeToken = typeof youtubeRawToken === "string" ? youtubeRawToken.replace(/^"|"$/g, '') : null;
+                const spotifyToken = this.normalizeToken(spotifyRawToken);
+                const youtubeToken = this.normalizeToken(youtubeRawToken);
                 if (!spotifyToken || !youtubeToken || !playlist) {
                     res.status(400).json({ error: "Missing token or playlist data" });
                     return;
                 }
+                if (!playlist.id || (playlist.platform !== "spotify" && playlist.platform !== "youtube")) {
+                    res.status(400).json({ error: "Invalid playlist data" });
+                    return;
+                }
                 let result;
                 if (playlist.platform === "spotify") {
+                    if (!playlist.name) {
+                        res.status(400).json({ error: "Spotify playlist name is missing" });
+                        return;
+                    }
                     // Spotify → YouTube
                     result = yield this.convertSpotifyToYouTube(playlist.name, playlist.id, spotifyToken, youtubeToken);
                 }
                 else {
+                    const youtubePlaylist = playlist;
+                    if (!((_a = youtubePlaylist.snippet) === null || _a === void 0 ? void 0 : _a.title)) {
+                        res.status(400).json({ error: "YouTube playlist title is missing" });
+                        return;
+                    }
                     // YouTube → Spotify
-                    result = yield this.convertYouTubeToSpotify(playlist.snippet.title, playlist.id, youtubeToken, spotifyToken);
+                    result = yield this.convertYouTubeToSpotify(youtubePlaylist.snippet.title, playlist.id, youtubeToken, spotifyToken);
                 }
                 res.status(200).json({ message: "Conversion complete ✅", result });
             }
             catch (err) {
-                console.error("❌ Conversion Error:", err);
-                res.status(500).json({ error: "Server error during conversion" });
+                const error = err;
+                const upstreamMessage = (_d = (_c = (_b = error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.error) === null || _d === void 0 ? void 0 : _d.message;
+                console.error("❌ Conversion Error:", upstreamMessage || error.message || err);
+                res.status(((_e = error.response) === null || _e === void 0 ? void 0 : _e.status) && error.response.status >= 400 ? 502 : 500).json({
+                    error: upstreamMessage || error.message || "Server error during conversion",
+                });
             }
         });
+        this.normalizeToken = (token) => {
+            if (typeof token !== "string")
+                return null;
+            const normalized = token.trim().replace(/^"|"$/g, "");
+            return normalized || null;
+        };
         this.convertSpotifyToYouTube = (title, spotifyPlaylistId, spotifyToken, youtubeToken) => __awaiter(this, void 0, void 0, function* () {
             const tracks = yield services_1.ConverterService.getSpotifyTracks(spotifyPlaylistId, spotifyToken);
             if (tracks.length === 0) {
