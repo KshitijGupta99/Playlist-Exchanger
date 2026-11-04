@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 "use client"
 import './globals.css';
+import { AuthProvider } from "@/components/AuthProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -9,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {/* <script src="https://cdn.tailwindcss.com"></script> */}
             </head>
             <body>
-                {children}
+                <AuthProvider>{children}</AuthProvider>
             </body>
         </html>
     );

@@ -1,16 +1,24 @@
 "use client";
 
 import SpotifyButton from "@/components/ButtonSpotifyLogin";
+import LogoutButton from "@/components/LogoutButton";
+import { useAuth } from "@/components/AuthProvider";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function DashboardPage() {
     const url = process.env.NEXT_PUBLIC_BACKEND_URI
     const [playlists, setPlaylists] = useState([]);
+    const router = useRouter();
+    const { hydrated, youtubeToken } = useAuth();
+
+    useEffect(() => {
+        if (hydrated && !youtubeToken) router.replace("/");
+    }, [hydrated, youtubeToken, router]);
 
     const getPlaylist = async () => {
-        const rawToken = localStorage.getItem("access_token_youtube");
-        const accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
+        const accessToken = youtubeToken;
         if (!accessToken) {
             console.error("Access token is missing!");
             return;
@@ -33,7 +41,10 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">YouTube Dashboard</h1>
+                <div className="mb-4 flex items-center justify-between">
+                    <h1 className="text-3xl font-bold text-gray-800">YouTube Dashboard</h1>
+                    <LogoutButton />
+                </div>
                 <p className="text-gray-600 mb-6">
                     Welcome to your YouTube Dashboard! Here you can view your playlists and manage them.
                 </p>

@@ -1,5 +1,8 @@
 "use client";
 import YTButton from "@/components/ButtonYTLogin";
+import LogoutButton from "@/components/LogoutButton";
+import { useAuth } from "@/components/AuthProvider";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -33,14 +36,19 @@ export default function Dashboard() {
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [playlist, setplaylist] = useState<SpotifyPlaylistResponse>(null);
   const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
+  const router = useRouter();
+  const { hydrated, spotifyUser: authUser, spotifyToken } = useAuth();
+
+  useEffect(() => {
+    if (hydrated && !spotifyToken) router.replace("/");
+  }, [hydrated, spotifyToken, router]);
 
   const getPlaylist = async () => {
     setShowPlaylist(true);
     if (playlist) return;
-    const user = JSON.parse(localStorage.getItem("spotifyUser") || "{}");
+    const user = authUser || {};
     if (!user.id) return;
-    const rawToken = localStorage.getItem("access_token");
-    const accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
+    const accessToken = spotifyToken;
     fetch(`${url}/v1/playlist/spotify`, {
       method: "GET",
       headers: {
@@ -61,16 +69,16 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("spotifyUser");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+    setUser(authUser as SpotifyUser | null);
+  }, [authUser]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 p-6">
   <div className="max-w-3xl w-full bg-white shadow-xl rounded-2xl p-8 text-center space-y-6">
-    <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+    <div className="flex items-center justify-between">
+      <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+      <LogoutButton />
+    </div>
 
     {user ? (
       <>

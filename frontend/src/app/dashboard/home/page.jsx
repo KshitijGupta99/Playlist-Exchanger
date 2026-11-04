@@ -2,18 +2,28 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import LogoutButton from "@/components/LogoutButton";
+import { useAuth } from "@/components/AuthProvider";
+import { useRouter } from "next/navigation";
  
 export default function HomePage() {
   const url = process.env.NEXT_PUBLIC_BACKEND_URI;
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
   const [youtubePlaylists, setYoutubePlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const router = useRouter();
+  const { hydrated, spotifyToken, youtubeToken } = useAuth();
 
   useEffect(() => {
-    let rawToken = localStorage.getItem("access_token_youtube");
-    const Youtube_accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
-    rawToken = localStorage.getItem("access_token");
-    const Spotify_accessToken = rawToken?.replace(/^"(.*)"$/, "$1");
+    if (hydrated && (!spotifyToken || !youtubeToken)) {
+      router.replace(spotifyToken ? "/dashboard" : "/dashboard/ytdashboard");
+    }
+  }, [hydrated, spotifyToken, youtubeToken, router]);
+
+  useEffect(() => {
+    if (!hydrated || !spotifyToken || !youtubeToken) return;
+    const Youtube_accessToken = youtubeToken;
+    const Spotify_accessToken = spotifyToken;
 
     // Fetch Spotify playlists
     fetch(`${url}/v1/playlist/spotify`, {
@@ -42,7 +52,7 @@ export default function HomePage() {
         if (Array.isArray(data)) setYoutubePlaylists(data);
         else console.error("❌ Unexpected Youtube data:", data);
       });
-  }, []);
+  }, [hydrated, spotifyToken, youtubeToken]);
 
   const handleConvert = async () => {
     if (!selectedPlaylist) return;
@@ -53,8 +63,8 @@ export default function HomePage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "spotify-token": localStorage.getItem("access_token"),
-        "youtube-token": localStorage.getItem("access_token_youtube"),
+        "spotify-token": spotifyToken,
+        "youtube-token": youtubeToken,
       },
       body: JSON.stringify(selectedPlaylist),
     });
@@ -109,9 +119,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100">
-      <h2 className="text-4xl font-extrabold text-center mb-12 text-gray-800 drop-shadow">
-        🎵 Playlist Exchanger
-      </h2>
+      <div className="mb-12 flex items-center justify-between">
+        <h2 className="text-4xl font-extrabold text-gray-800 drop-shadow">🎵 Playlist Exchanger</h2>
+        <LogoutButton />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>

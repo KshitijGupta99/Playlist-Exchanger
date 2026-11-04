@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { persistAuth } from "@/components/AuthProvider";
 
 export default function SpotifyCallback() {
   const router = useRouter();
@@ -15,8 +16,13 @@ export default function SpotifyCallback() {
     const code = urlParams.get("code");
 
     console.log("🎟️ Authorization Code:", code);
-    if (code) {
-      try {
+    if (!code) {
+      console.error("YouTube authorization code is missing");
+      router.replace("/");
+      return;
+    }
+
+    try {
         fetch(`${url}/v1/auth/youtube`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -24,10 +30,8 @@ export default function SpotifyCallback() {
         })
           .then((res) => res.json())
           .then((data) => {
-            console.log("✅ Youtube Response:", data);
-            if (data.access_token) {
-              localStorage.setItem("youtubeuser", JSON.stringify(data.user));
-              localStorage.setItem("access_token_youtube", JSON.stringify(data.access_token));
+            if (data.access_token && data.user) {
+              persistAuth("access_token_youtube", "youtubeuser", data.access_token, data.user);
 
               // Check if Spotify token exists
               if (localStorage.getItem("access_token") !== null) {
@@ -35,16 +39,13 @@ export default function SpotifyCallback() {
               } else {
                 router.push("/dashboard/ytdashboard"); // Redirect to YouTube dashboard otherwise
               }
-            } else {
-              console.error("❌ Authentication failed", data);
-            }
+            } else throw new Error(data.error || "Authentication failed");
           })
-          .catch((err) => console.error("❌ Youyube Auth Error:", err));
-      } catch (error) {
-        console.error("❌ Error during fetch:", error);
-      }
+          .catch((err) => console.error("YouTube authentication failed:", err));
+    } catch (error) {
+      console.error("❌ Error during fetch:", error);
     }
-  }, []);
+  }, [router, url]);
 
   return <h1>Authenticating with Youtube...</h1>;
 }

@@ -2,16 +2,15 @@
 const SpotifyButton = () => {
   const url = process.env.NEXT_PUBLIC_BACKEND_URI
   const signIn = async () => {
-    const res = await fetch(`${url}/v1/auth/spotify`, {
-      method: "GET",
-      headers: {
-          "Content-Type": "application/json",
-      },
-    });
-
-    const data = await res.json();
-    console.log(data, " data");
-    window.location.href = data.url;
+    try {
+      const res = await fetch(`${url}/v1/auth/spotify`);
+      if (!res.ok) throw new Error("Unable to start Spotify sign-in");
+      const data = await res.json();
+      if (!data.url) throw new Error("Spotify sign-in URL was not returned");
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Spotify sign-in failed:", error);
+    }
   };
 
   return (

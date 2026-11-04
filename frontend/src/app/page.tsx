@@ -1,8 +1,25 @@
 "use client";
 import SpotifyButton from "@/components/ButtonSpotifyLogin";
 import YTButton from "@/components/ButtonYTLogin";
+import { useAuth } from "@/components/AuthProvider";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  const { hydrated, spotifyToken, youtubeToken } = useAuth();
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (spotifyToken && youtubeToken) router.replace("/dashboard/home");
+    else if (spotifyToken) router.replace("/dashboard");
+    else if (youtubeToken) router.replace("/dashboard/ytdashboard");
+  }, [hydrated, spotifyToken, youtubeToken, router]);
+
+  if (!hydrated || spotifyToken || youtubeToken) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-6">
       <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-10 text-center space-y-8">
